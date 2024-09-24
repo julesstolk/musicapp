@@ -4,58 +4,94 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.blyss2idk.musicapp.ui.theme.MusicappTheme
+import androidx.compose.ui.unit.dp
+import com.blyss2idk.musicapp.ui.theme.MusicappMain
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
-            MusicappTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+            MusicappMain {
+                DefaultScreen()
+            }
+        }
+    }
+
+    @Preview
+    @Composable
+    fun DefaultScreen() {
+        val moreImg = R.drawable.baseline_more_vert_24
+        val amountTabs = 10
+        val sizeButton = 70
+
+        var query by remember {
+            mutableStateOf("")
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextField(
+                    modifier = Modifier
+                        .weight(5f),
+                    value = query,
+                    onValueChange = { text ->
+                        query = text
+                    }
+                )
+                IconButton(
+                    modifier = Modifier
+                        .weight(1f),
+                    onClick = {
+
+                    }
+                ) {
+                    Image(
+                        painter = painterResource(id = moreImg),
+                        contentDescription = "More"
+                    )
+                }
+            }
+            for (i in 1..amountTabs) {
+                Button(
+                    modifier = Modifier
+                        .height(sizeButton.dp),
+                    onClick = {
+
+                    }
+                ) {
+                    Text(
+                        text = i.toString()
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Column (
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = modifier
-            .fillMaxSize()
-    ) {
-        Text(
-            text = "Hello $name!",
-            modifier = modifier
-        )
-        Text(
-            text = "mmmmm",
-            modifier = modifier
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MusicappTheme {
-        Greeting("Android")
     }
 }
