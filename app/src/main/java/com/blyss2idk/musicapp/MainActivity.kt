@@ -7,9 +7,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -43,8 +46,10 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun DefaultScreen() {
         val moreImg = R.drawable.baseline_more_vert_24
+        val searchButtonGapSpacing = 10
         val amountTabs = 10
-        val sizeButton = 70
+        val sizeButtonTabs = 70
+        val buttonPadding = 7
 
         var query by remember {
             mutableStateOf("")
@@ -79,13 +84,19 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(searchButtonGapSpacing.dp))
+
             for (i in 1..amountTabs) {
                 Button(
                     modifier = Modifier
-                        .height(sizeButton.dp),
+                        .height(sizeButtonTabs.dp)
+                        .fillMaxWidth()
+                        .padding(buttonPadding.dp),
                     onClick = {
 
-                    }
+                    },
+                    shape = RoundedCornerShape(7.dp)
                 ) {
                     Text(
                         text = i.toString()
