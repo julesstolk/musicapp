@@ -1,9 +1,13 @@
 package com.blyss2idk.musicapp
 
+import android.app.Activity
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.ActivityResultCaller
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,7 +31,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.blyss2idk.musicapp.ui.theme.MusicappMain
+import kotlin.system.exitProcess
 
 class MainActivity : ComponentActivity() {
 
@@ -40,6 +46,19 @@ class MainActivity : ComponentActivity() {
                 DefaultScreen()
             }
         }
+
+        if (ContextCompat.checkSelfPermission(this, "READ_EXTERNAL_AUDIO") != PackageManager.PERMISSION_GRANTED) {
+            val activityresultcallback = ARC()
+        }
+    }
+
+    class ARC : ActivityResultCallback<Boolean> {
+        override fun onActivityResult(result: Boolean) {
+            if (!result) {
+                exitProcess(0)
+            }
+        }
+
     }
 
     @Preview
