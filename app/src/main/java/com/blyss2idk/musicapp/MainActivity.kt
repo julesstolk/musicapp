@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -57,14 +56,14 @@ class MainActivity : ComponentActivity() {
     // Ask for permissions for reading audio media
     private fun checkPermissions() {
         val requestPermissionLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestPermission())
-            { isGranted: Boolean ->
-                if (!isGranted) {
-                    // Permission not granted, show snackbar that says that app is unusable
-                    // and/or close app
-                    // NotifyNoPermissionSnackbar()
-                }
-            }
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+//            { isGranted: Boolean ->
+//                if (!isGranted) {
+//                    // Permission not granted, show snackbar that says that app is unusable
+//                    // and/or close app
+//                    // NotifyNoPermissionSnackbar()
+//                }
+//            }
         // Check android version to support both older as newer android versions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // Ask permission if not granted, else do nothing
@@ -150,7 +149,9 @@ class MainActivity : ComponentActivity() {
 
             // Tabs for custom operations
             items (amountTabs) { index ->
-                TabButton(index, sizeButtonTabs, buttonPadding)
+                if (query == "") {
+                    TabButton(index, sizeButtonTabs, buttonPadding)
+                }
             }
         }
     }
