@@ -10,15 +10,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -97,63 +98,78 @@ class MainActivity : ComponentActivity() {
     fun DefaultScreen() {
         val moreImg = R.drawable.baseline_more_vert_24
         val searchButtonGapSpacing = 10
-        val amountTabs = 10
+        val amountTabs = 30
         val sizeButtonTabs = 70
         val buttonPadding = 7
 
         var query by remember {
             mutableStateOf("")
         }
-        Column(
+
+
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = Color(0))
         ) {
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextField(
-                    modifier = Modifier
-                        .weight(5f),
-                    value = query,
-                    onValueChange = { text ->
-                        query = text
-                    }
-                )
-                IconButton(
-                    modifier = Modifier
-                        .weight(1f),
-                    onClick = {
 
-                    }
+            // Top row with search bar and more options button
+            item {
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = painterResource(id = moreImg),
-                        contentDescription = "More"
+                    TextField(
+                        modifier = Modifier
+                            .weight(5f),
+                        value = query,
+                        onValueChange = { text ->
+                            query = text
+                        }
                     )
+                    IconButton(
+                        modifier = Modifier
+                            .weight(1f),
+                        onClick = {
+
+                        }
+                    ) {
+                        Image(
+                            painter = painterResource(id = moreImg),
+                            contentDescription = "More"
+                        )
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(searchButtonGapSpacing.dp))
-
-            for (i in 1..amountTabs) {
-                Button(
-                    modifier = Modifier
-                        .height(sizeButtonTabs.dp)
-                        .fillMaxWidth()
-                        .padding(buttonPadding.dp),
-                    onClick = {
-
-                    },
-                    shape = RoundedCornerShape(7.dp)
-                ) {
-                    Text(
-                        text = i.toString()
-                    )
-                }
+            // Spacer for better design
+            item {
+                Spacer(modifier = Modifier.height(searchButtonGapSpacing.dp))
             }
+
+            // Tabs for custom operations
+            items (amountTabs) { index ->
+                TabButton(index, sizeButtonTabs, buttonPadding)
+            }
+        }
+    }
+
+    @Composable
+    fun TabButton(id: Int, sizeButtonTabs: Int, buttonPadding: Int) {
+        Button(
+            modifier = Modifier
+                .height(sizeButtonTabs.dp)
+                .fillMaxWidth()
+                .padding(buttonPadding.dp),
+            onClick = {
+
+            },
+            shape = RoundedCornerShape(7.dp)
+        ) {
+            Text(
+                text = id.toString()
+            )
         }
     }
 }
