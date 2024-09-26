@@ -52,7 +52,6 @@ class MainActivity : ComponentActivity() {
 
     }
 
-
     // Ask for permissions for reading audio media
     private fun checkPermissions() {
         val requestPermissionLauncher =
