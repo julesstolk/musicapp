@@ -34,9 +34,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.blyss2idk.musicapp.ui.theme.SearchManager
 import com.blyss2idk.musicapp.ui.theme.MusicappMain
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var sm: SearchManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,20 +58,20 @@ class MainActivity : ComponentActivity() {
     // Ask for permissions for reading audio media
     private fun checkPermissions() {
         val requestPermissionLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
-//            { isGranted: Boolean ->
-//                if (!isGranted) {
-//                    // Permission not granted, show snackbar that says that app is unusable
-//                    // and/or close app
-//                    // NotifyNoPermissionSnackbar()
-//                }
-//            }
+            registerForActivityResult(ActivityResultContracts.RequestPermission())
+            { isGranted: Boolean ->
+                if (!isGranted) {
+                    // Permission not granted, show snackbar that says that app is unusable
+                    // and/or close app
+                    // NotifyNoPermissionSnackbar()
+                }
+            }
         // Check android version to support both older as newer android versions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // Ask permission if not granted, else do nothing
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                    // If permission not granted, ask for permission
+                    // If permission not already granted, ask for permission
                     requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_AUDIO)
             }
         }
@@ -79,11 +82,13 @@ class MainActivity : ComponentActivity() {
                 // Ask permission if not granted, else do nothing
                 if (ContextCompat.checkSelfPermission(this,
                         Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    // If permission not granted, ask for permission
+                    // If permission not already granted, ask for permission
                     requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
                 }
             }
         }
+        // At the end, start up search manager
+        sm = SearchManager(this)
     }
 
 //    @Composable
