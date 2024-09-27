@@ -1,4 +1,4 @@
-package com.blyss2idk.musicapp.ui.theme
+package com.blyss2idk.musicapp
 
 import java.io.File
 import android.provider.MediaStore
@@ -10,11 +10,12 @@ class SearchManager(private var context: ComponentActivity) {
     // Change type
     var knownFiles = mutableListOf<File>()
 
-    fun refresh() {
+    fun search(query: String) {
 
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,            // ID of the audio file
             MediaStore.Audio.Media.DISPLAY_NAME,   // Name of the audio file
+
             MediaStore.Audio.Media.DATA            // Full file path to audio file
         )
 
