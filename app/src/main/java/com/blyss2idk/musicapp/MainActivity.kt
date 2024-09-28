@@ -4,12 +4,14 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -55,6 +57,12 @@ class MainActivity : ComponentActivity() {
 
         checkPermissions()
 
+        Log.i("FILETEST", "yaya1")
+
+        sm = SearchManager(applicationContext)
+
+        sm.search("yo")
+
     }
 
     // Ask for permissions for reading audio media
@@ -89,8 +97,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        // At the end, start up search manager
-        sm = SearchManager(this)
     }
 
 //    @Composable
@@ -115,7 +121,7 @@ class MainActivity : ComponentActivity() {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = Color(0))
+                .background(color = Color.Black)
         ) {
 
             // Top row with search bar and more options button
@@ -153,14 +159,44 @@ class MainActivity : ComponentActivity() {
                 Spacer(modifier = Modifier.height(searchButtonGapSpacing.dp))
             }
 
-            // Tabs for custom operations
-            items (amountTabs) { index ->
-                if (query == "") {
+            // Tabs for custom functions
+            // Show only if there is no query
+            if (query == "") {
+                items(amountTabs) { index ->
                     TabButton(index, sizeButtonTabs, buttonPadding)
+                }
+            }
+
+            // Search results
+            // Show only if there is a query
+            if (query != "") {
+                val searchResult = sm.search(query)
+                items(searchResult.size) { index ->
+                    val result = searchResult[index]
+                    if (result.useMetadata) {
+
+                    } else {
+                        // Get duration in seconds and then get string for duration in format:
+                        // minutes:seconds
+                        val d = result.duration / 1000
+                        val durationMinutes = d / 60
+                        val durationSeconds = d % 60
+                        val stringDuration = "$durationMinutes:$durationSeconds"
+                        StandardTab(sizeButtonTabs,
+                            buttonPadding,
+                            result.fileName,
+                            "",
+                            null,
+                            stringDuration,
+                            { todo() },
+                            listOf())
+                    }
                 }
             }
         }
     }
+
+    fun todo() {}
 
     @Composable
     fun TabButton(id: Int, sizeButtonTabs: Int, buttonPadding: Int) {
@@ -183,11 +219,14 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun StandardTab(heightTabs: Int,
                     paddingTabs: Int,
-                    maintext: String,
-                    secondText: String,
-                    icon: Int,
+                    mainText: String,
+                    secondaryText: String,
+                    icon: Int?,
                     tertiaryText: String,
+                    onClick: () -> Unit,
                     buttons: List<@Composable () -> Unit>) {
+
+        // Row containing texts and buttons
         Row (
             modifier = Modifier
                 .height(heightTabs.dp)
@@ -196,9 +235,30 @@ class MainActivity : ComponentActivity() {
         ) {
             Column (
                 modifier = Modifier
-                    .weight(5f)
+                    .fillMaxWidth()
+                    .clickable {
+                        onClick()
+                    }
             ) {
+                Row () {
 
+
+                    Column () {
+                        Text (
+                            text = mainText
+                        )
+
+                        Text (
+                            text = secondaryText
+                        )
+                    }
+
+                    Text(
+                        text = tertiaryText,
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                    )
+                }
             }
 
             for (button in buttons) {
