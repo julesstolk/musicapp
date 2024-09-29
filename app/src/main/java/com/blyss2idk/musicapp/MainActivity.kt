@@ -233,11 +233,12 @@ class MainActivity : ComponentActivity() {
     fun StandardTab(heightTabs: Int,
                     paddingTabs: Int,
                     mainText: String,
-                    secondaryText: String,
-                    icon: Int?,
-                    tertiaryText: String,
+                    secondaryText: String = "",
+                    icon: Int? = null,
+                    tertiaryText: String = "",
                     onClick: () -> Unit,
-                    buttons: List<@Composable () -> Unit>) {
+                    buttons: List<@Composable () -> Unit> = listOf(),
+                    roundedCornerShapeInt: Int = 7) {
 
         // Row containing texts and buttons
         Row (
@@ -245,7 +246,7 @@ class MainActivity : ComponentActivity() {
                 .height(heightTabs.dp)
                 .fillMaxWidth()
                 .padding(paddingTabs.dp)
-                .clip(RoundedCornerShape(7.dp))
+                .clip(RoundedCornerShape(roundedCornerShapeInt.dp))
                 .background(Color.Gray)
         ) {
             Column (
