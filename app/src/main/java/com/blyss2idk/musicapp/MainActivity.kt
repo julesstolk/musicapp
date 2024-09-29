@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -171,6 +172,18 @@ class MainActivity : ComponentActivity() {
             // Show only if there is a query
             if (query != "") {
                 val searchResult = sm.search(query)
+                if (searchResult.size == 0) {
+                    item {
+                        StandardTab(sizeButtonTabs,
+                            buttonPadding,
+                            "No results.",
+                            "",
+                            null,
+                            "",
+                            { todo() },
+                            listOf())
+                    }
+                }
                 items(searchResult.size) { index ->
                     val result = searchResult[index]
                     if (result.useMetadata) {
@@ -232,6 +245,8 @@ class MainActivity : ComponentActivity() {
                 .height(heightTabs.dp)
                 .fillMaxWidth()
                 .padding(paddingTabs.dp)
+                .clip(RoundedCornerShape(7.dp))
+                .background(Color.Gray)
         ) {
             Column (
                 modifier = Modifier
@@ -243,7 +258,10 @@ class MainActivity : ComponentActivity() {
                 Row () {
 
 
-                    Column () {
+                    Column (
+                        modifier = Modifier
+                            .padding(8.dp)
+                    ) {
                         Text (
                             text = mainText
                         )
