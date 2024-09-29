@@ -5,6 +5,7 @@ import android.database.Cursor
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import com.blyss2idk.musicapp.data.Track
 
 class SearchManager(private var context: Context) {
 
