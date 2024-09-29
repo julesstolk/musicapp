@@ -1,4 +1,4 @@
-package com.blyss2idk.musicapp
+package com.blyss2idk.musicapp.data
 
 import android.graphics.Bitmap
 
