@@ -9,6 +9,7 @@ data class Track(val fileId: Long,
                  val duration: Long,
                  val filePath: String) {
 
+    var durationString: String
     var hasMetadata = false
     var useMetadata = false
     lateinit var cover: Bitmap
@@ -17,5 +18,10 @@ data class Track(val fileId: Long,
         if (title != null && artist != null) {
             hasMetadata = true
         }
+
+        val d = duration / 1000
+        val durationMinutes = d / 60
+        val durationSeconds = d % 60
+        durationString = "$durationMinutes:$durationSeconds"
     }
 }

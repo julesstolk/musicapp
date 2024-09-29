@@ -191,16 +191,12 @@ class MainActivity : ComponentActivity() {
                     } else {
                         // Get duration in seconds and then get string for duration in format:
                         // minutes:seconds
-                        val d = result.duration / 1000
-                        val durationMinutes = d / 60
-                        val durationSeconds = d % 60
-                        val stringDuration = "$durationMinutes:$durationSeconds"
                         StandardTab(sizeButtonTabs,
                             buttonPadding,
                             result.fileName,
                             "",
                             null,
-                            stringDuration,
+                            result.durationString,
                             { todo() },
                             listOf())
                     }
