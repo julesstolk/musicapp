@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -225,6 +226,7 @@ class MainActivity : ComponentActivity() {
                 .padding(theme.tabPadding.dp)
                 .clip(RoundedCornerShape(theme.tabRoundedCornerShape.dp))
                 .background(theme.tabColor)
+                .alpha(theme.tabAlpha)
         ) {
             Column (
                 modifier = Modifier

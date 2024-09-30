@@ -8,6 +8,7 @@ data class Theme(
     val backgroundColor: Color,
     val textColor: Color,
     val tabColor: Color,
+    val tabAlpha: Float = 1f,
     val tabsHorizontal: Int = 1,
     val tabsVertical: Int = 10,
     val tabSizeVertical: Int = 70,
