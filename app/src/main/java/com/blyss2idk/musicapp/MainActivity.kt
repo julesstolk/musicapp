@@ -22,10 +22,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -38,18 +36,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.blyss2idk.musicapp.data.DefaultThemes
+import com.blyss2idk.musicapp.data.TabType
 import com.blyss2idk.musicapp.ui.theme.MusicappMain
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var sm: SearchManager
-    private val theme = DefaultThemes.darkTheme
+    private val theme = DefaultThemes.darkTheme2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,102 +105,113 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-//    @Composable
-//    fun NotifyNoPermissionSnackbar(permission: String) {
-//        // to implement
-//    }
-
     @Preview
     @Composable
     fun DefaultScreen() {
-        val moreImg = R.drawable.baseline_more_vert_24
-        val searchButtonGapSpacing = 10
-        val amountTabs = 30
-        val sizeButtonTabs = 70
-        val buttonPadding = 7
-
+        val moreIcon = R.drawable.baseline_more_vert_24
         var query by remember {
             mutableStateOf("")
         }
 
-
-        LazyColumn(
+        Box (
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = theme.backgroundColor)
+                .background(theme.backgroundColor)
         ) {
-            // Title bar for phones with untouchable screen on top
-
-            item {
-                Text(
+            if (theme.backgroundImage != null) {
+                Image(
+                    painter = painterResource(id = theme.backgroundImage),
+                    contentDescription = "background",
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .padding(vertical = 10.dp),
-                    text = if (query == "") "main" else "searching...",
-                    color = theme.textColor
+                        .fillMaxSize()
                 )
             }
 
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                // Title bar for phones with untouchable screen on top
 
-            // Top row with search bar and more options button
-            item {
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextField(
+                item {
+                    Text(
                         modifier = Modifier
-                            .weight(5f),
-                        value = query,
-                        onValueChange = { text ->
-                            query = text
-                        }
+                            .padding(vertical = 10.dp),
+                        text = if (query == "") "main" else "searching...",
+                        color = theme.textColor
                     )
-                    IconButton(
+                }
+
+
+                // Top row with search bar and more options button
+                item {
+                    Row(
                         modifier = Modifier
-                            .weight(1f),
-                        onClick = {
-                            todo()
-                        }
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Image(
-                            painter = painterResource(id = moreImg),
-                            contentDescription = "More"
+                        TextField(
+                            modifier = Modifier
+                                .weight(5f),
+                            value = query,
+                            onValueChange = { text ->
+                                query = text
+                            }
                         )
+                        IconButton(
+                            modifier = Modifier
+                                .weight(1f),
+                            onClick = {
+                                todo()
+                            }
+                        ) {
+                            Image(
+                                painter = painterResource(id = moreIcon),
+                                contentDescription = "More"
+                            )
+                        }
                     }
                 }
-            }
 
-            // Spacer for better design
-            item {
-                Spacer(modifier = Modifier.height(theme.searchButtonTextSpacing.dp))
-            }
-
-            // Tabs for custom functions
-            // Show only if there is no query
-            if (query == "") {
-                items(amountTabs) { index ->
-                    StandardTab(index.toString())
+                // Spacer for better design
+                item {
+                    Spacer(modifier = Modifier.height(theme.searchButtonTextSpacing.dp))
                 }
-            }
 
-            // Search results
-            // Show only if there is a query
-            if (query != "") {
-                val searchResult = sm.search(query)
-                if (searchResult.size == 0) {
-                    item {
-                        StandardTab("no results.")
+                // Tabs for custom functions
+                // Show only if there is no query
+                // Implement functions !!!
+                if (query == "") {
+                    items(theme.tabsVertical) { index ->
+                        StandardTab(TabType.SONG,
+                            index.toString(),
+                            "second text",
+                            "3:01")
                     }
                 }
-                items(searchResult.size) { index ->
-                    val result = searchResult[index]
-                    if (result.useMetadata) {
 
-                    } else {
-                        StandardTab(result.fileName,
-                            "",
-                            result.durationString)
+                // Search results
+                // Show only if there is a query
+                if (query != "") {
+                    val searchResult = sm.search(query)
+                    if (searchResult.size == 0) {
+                        item {
+                            StandardTab(TabType.EXCEPTION, "no results.")
+                        }
+                    }
+                    items(searchResult.size) { index ->
+                        val result = searchResult[index]
+                        if (result.useMetadata) {
+
+                        } else {
+                            StandardTab(
+                                TabType.SONG,
+                                result.fileName,
+                                "",
+                                result.durationString
+                            )
+                        }
                     }
                 }
             }
@@ -210,7 +221,8 @@ class MainActivity : ComponentActivity() {
     fun todo() {}
 
     @Composable
-    fun StandardTab(mainText: String,
+    fun StandardTab(tabType: TabType,
+                    mainText: String,
                     secondaryText: String = "",
                     tertiaryText: String = "",
                     // REMOVE AUTOMATIC ARGUMENT LATER
@@ -218,43 +230,75 @@ class MainActivity : ComponentActivity() {
                     icon: Int? = null,
                     buttons: List<@Composable () -> Unit> = listOf()) {
 
+        val songIcon = R.drawable.baseline_music_note_24
+        val playlistIcon = R.drawable.baseline_library_music_24
+
         // Row containing texts and buttons
-        Row (
+
+        Row(
             modifier = Modifier
                 .height(theme.tabSizeVertical.dp)
                 .fillMaxWidth()
-                .padding(theme.tabPadding.dp)
+                .padding(end = theme.tabPadding.dp)
+                .padding(vertical = theme.tabPadding.dp)
                 .clip(RoundedCornerShape(theme.tabRoundedCornerShape.dp))
                 .background(theme.tabColor)
                 .alpha(theme.tabAlpha)
         ) {
-            Column (
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
                         onClick()
                     }
             ) {
-                Row () {
+                Row {
 
-
-                    Column (
-                        modifier = Modifier
-                            .padding(8.dp)
-                    ) {
-                        Text (
-                            text = mainText
-                        )
-
-                        Text (
-                            text = secondaryText
+                    if (icon == null) {
+                        if (tabType == TabType.SONG) {
+                            Image(
+                                painter = painterResource(songIcon),
+                                contentDescription = "song icon",
+                                modifier = Modifier
+                                    .height(theme.tabSizeVertical.dp)
+                            )
+                        } else if (tabType == TabType.PLAYLIST) {
+                            Image(
+                                painter = painterResource(playlistIcon),
+                                contentDescription = "playlist icon"
+                            )
+                        }
+                    } else {
+                        Image(
+                            painter = painterResource(icon),
+                            contentDescription = "customIcon"
                         )
                     }
 
+                    Column(
+                        modifier = Modifier
+                            .padding(8.dp)
+                    ) {
+                        // First text
+                        Text(
+                            text = mainText,
+                            fontSize = theme.textSize.sp,
+                            color = theme.textColor
+                        )
+
+                        // Second text
+                        Text(
+                            text = secondaryText,
+                            color = theme.textColor
+                        )
+                    }
+
+                    // Third text
                     Text(
                         text = tertiaryText,
                         modifier = Modifier
-                            .align(Alignment.CenterVertically)
+                            .align(Alignment.CenterVertically),
+                        color = theme.textColor
                     )
                 }
             }
@@ -268,7 +312,6 @@ class MainActivity : ComponentActivity() {
                     button()
                 }
             }
-
         }
     }
 }
