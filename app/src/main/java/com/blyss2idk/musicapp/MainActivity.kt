@@ -40,11 +40,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.blyss2idk.musicapp.data.DefaultThemes
 import com.blyss2idk.musicapp.ui.theme.MusicappMain
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var sm: SearchManager
+    private val theme = DefaultThemes.darkTheme
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -124,6 +126,17 @@ class MainActivity : ComponentActivity() {
                 .fillMaxSize()
                 .background(color = Color.Black)
         ) {
+            // Title bar for phones with untouchable screen on top
+
+            item {
+                Text(
+                    modifier = Modifier
+                        .padding(vertical = 10.dp),
+                    text = if (query == "") "main" else "searching...",
+                    color = theme.textColor
+                )
+            }
+
 
             // Top row with search bar and more options button
             item {
@@ -164,7 +177,7 @@ class MainActivity : ComponentActivity() {
             // Show only if there is no query
             if (query == "") {
                 items(amountTabs) { index ->
-                    TabButton(index, sizeButtonTabs, buttonPadding)
+                    StandardTab(sizeButtonTabs, buttonPadding, index.toString(), onClick = { todo() })
                 }
             }
 
@@ -177,11 +190,7 @@ class MainActivity : ComponentActivity() {
                         StandardTab(sizeButtonTabs,
                             buttonPadding,
                             "No results.",
-                            "",
-                            null,
-                            "",
-                            { todo() },
-                            listOf())
+                            onClick = { todo() })
                     }
                 }
                 items(searchResult.size) { index ->
