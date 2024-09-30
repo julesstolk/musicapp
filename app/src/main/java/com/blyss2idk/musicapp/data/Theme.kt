@@ -7,7 +7,8 @@ data class Theme(
     val title: String,
     val backgroundColor: Color,
     val textColor: Color,
-    val tabColor: Color,
+    val textSize: Float = 10f,
+    val tabColor: Color = Color.Gray,
     val tabAlpha: Float = 1f,
     val tabsHorizontal: Int = 1,
     val tabsVertical: Int = 10,
@@ -16,5 +17,5 @@ data class Theme(
     val searchBarColor: Color = tabColor,
     val tabRoundedCornerShape: Int = 7,
     val searchButtonTextSpacing: Int = 10,
-    val backgroundImage: String? = null,
+    val backgroundImage: Int? = null,
 )
