@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -124,7 +126,7 @@ class MainActivity : ComponentActivity() {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = Color.Black)
+                .background(color = theme.backgroundColor)
         ) {
             // Title bar for phones with untouchable screen on top
 
@@ -157,7 +159,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .weight(1f),
                         onClick = {
-
+                            todo()
                         }
                     ) {
                         Image(
@@ -170,14 +172,14 @@ class MainActivity : ComponentActivity() {
 
             // Spacer for better design
             item {
-                Spacer(modifier = Modifier.height(searchButtonGapSpacing.dp))
+                Spacer(modifier = Modifier.height(theme.searchButtonTextSpacing.dp))
             }
 
             // Tabs for custom functions
             // Show only if there is no query
             if (query == "") {
                 items(amountTabs) { index ->
-                    StandardTab(sizeButtonTabs, buttonPadding, index.toString(), onClick = { todo() })
+                    StandardTab(index.toString())
                 }
             }
 
@@ -187,10 +189,7 @@ class MainActivity : ComponentActivity() {
                 val searchResult = sm.search(query)
                 if (searchResult.size == 0) {
                     item {
-                        StandardTab(sizeButtonTabs,
-                            buttonPadding,
-                            "No results.",
-                            onClick = { todo() })
+                        StandardTab("no results.")
                     }
                 }
                 items(searchResult.size) { index ->
@@ -198,16 +197,9 @@ class MainActivity : ComponentActivity() {
                     if (result.useMetadata) {
 
                     } else {
-                        // Get duration in seconds and then get string for duration in format:
-                        // minutes:seconds
-                        StandardTab(sizeButtonTabs,
-                            buttonPadding,
-                            result.fileName,
+                        StandardTab(result.fileName,
                             "",
-                            null,
-                            result.durationString,
-                            { todo() },
-                            listOf())
+                            result.durationString)
                     }
                 }
             }
@@ -217,42 +209,22 @@ class MainActivity : ComponentActivity() {
     fun todo() {}
 
     @Composable
-    fun TabButton(id: Int, sizeButtonTabs: Int, buttonPadding: Int) {
-        Button(
-            modifier = Modifier
-                .height(sizeButtonTabs.dp)
-                .fillMaxWidth()
-                .padding(buttonPadding.dp),
-            onClick = {
-
-            },
-            shape = RoundedCornerShape(7.dp)
-        ) {
-            Text(
-                text = id.toString()
-            )
-        }
-    }
-
-    @Composable
-    fun StandardTab(heightTabs: Int,
-                    paddingTabs: Int,
-                    mainText: String,
+    fun StandardTab(mainText: String,
                     secondaryText: String = "",
-                    icon: Int? = null,
                     tertiaryText: String = "",
-                    onClick: () -> Unit,
-                    buttons: List<@Composable () -> Unit> = listOf(),
-                    roundedCornerShapeInt: Int = 7) {
+                    // REMOVE AUTOMATIC ARGUMENT LATER
+                    onClick: () -> Unit = { todo() },
+                    icon: Int? = null,
+                    buttons: List<@Composable () -> Unit> = listOf()) {
 
         // Row containing texts and buttons
         Row (
             modifier = Modifier
-                .height(heightTabs.dp)
+                .height(theme.tabSizeVertical.dp)
                 .fillMaxWidth()
-                .padding(paddingTabs.dp)
-                .clip(RoundedCornerShape(roundedCornerShapeInt.dp))
-                .background(Color.Gray)
+                .padding(theme.tabPadding.dp)
+                .clip(RoundedCornerShape(theme.tabRoundedCornerShape.dp))
+                .background(theme.tabColor)
         ) {
             Column (
                 modifier = Modifier
@@ -288,8 +260,8 @@ class MainActivity : ComponentActivity() {
             for (button in buttons) {
                 Box(
                     modifier = Modifier
-                        .height(heightTabs.dp)
-                        .width(heightTabs.dp)
+                        .fillMaxHeight()
+                        .aspectRatio(1f)
                 ) {
                     button()
                 }
