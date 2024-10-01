@@ -37,12 +37,15 @@ class SearchManager(private var context: Context) {
             }
         )
 
+        val selection = "(${MediaStore.Audio.Media.DISPLAY_NAME} LIKE ? OR ${MediaStore.Audio.Media.TITLE} LIKE ?)"
+        val selectionArgs = arrayOf("%${query}", "%${query}")
+
         try {
             context.contentResolver.query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 projection,
-                null,
-                null,
+                selection,
+                selectionArgs,
                 null
             )?.use { cursor ->
                 Log.i("FILETEST", "yaya2")
