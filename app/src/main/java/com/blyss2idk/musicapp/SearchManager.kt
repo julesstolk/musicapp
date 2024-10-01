@@ -9,13 +9,26 @@ import com.blyss2idk.musicapp.data.Track
 
 class SearchManager(private var context: Context) {
 
+    private val projection = arrayOf(
+        MediaStore.Audio.Media._ID,            // ID of the audio file
+        MediaStore.Audio.Media.DISPLAY_NAME,   // Name of the audio file
+        MediaStore.Audio.Media.TITLE,
+        MediaStore.Audio.Media.ARTIST,
+        MediaStore.Audio.Media.DURATION,
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.Audio.Media.RELATIVE_PATH
+        } else {
+            MediaStore.Audio.Media.DATA
+        }
+    )
+
     fun cursorToTrackClass(cursor: Cursor): Track {
-        val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID))
-        val displayName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME))
-        val title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE))
-        val artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST))
-        val duration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
-        val filePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
+        val id = cursor.getLong(cursor.getColumnIndexOrThrow(projection[0]))
+        val displayName = cursor.getString(cursor.getColumnIndexOrThrow(projection[1]))
+        val title = cursor.getString(cursor.getColumnIndexOrThrow(projection[2]))
+        val artist = cursor.getString(cursor.getColumnIndexOrThrow(projection[3]))
+        val duration = cursor.getLong(cursor.getColumnIndexOrThrow(projection[4]))
+        val filePath = cursor.getString(cursor.getColumnIndexOrThrow(projection[5]))
 
         return Track(id, displayName, title, artist, duration, filePath)
     }
@@ -23,19 +36,6 @@ class SearchManager(private var context: Context) {
     fun search(query: String): MutableList<Track> {
 
         val outputTracks = mutableListOf<Track>()
-
-        val projection = arrayOf(
-            MediaStore.Audio.Media._ID,            // ID of the audio file
-            MediaStore.Audio.Media.DISPLAY_NAME,   // Name of the audio file
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.DURATION,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                MediaStore.Audio.Media.RELATIVE_PATH
-            } else {
-                MediaStore.Audio.Media.DATA
-            }
-        )
 
         val selection = "(${MediaStore.Audio.Media.DISPLAY_NAME} LIKE ? OR ${MediaStore.Audio.Media.TITLE} LIKE ?)"
         val selectionArgs = arrayOf("%${query}", "%${query}")
