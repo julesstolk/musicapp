@@ -67,8 +67,6 @@ class MainActivity : ComponentActivity() {
 
         sm = SearchManager(applicationContext)
 
-        sm.search("yo")
-
     }
 
     // Ask for permissions for reading audio media
