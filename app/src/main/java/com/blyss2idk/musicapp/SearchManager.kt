@@ -22,7 +22,7 @@ class SearchManager(private var context: Context) {
         }
     )
 
-    fun cursorToTrackClass(cursor: Cursor): Track {
+    private fun cursorToTrackClass(cursor: Cursor): Track {
         val id = cursor.getLong(cursor.getColumnIndexOrThrow(projection[0]))
         val displayName = cursor.getString(cursor.getColumnIndexOrThrow(projection[1]))
         val title = cursor.getString(cursor.getColumnIndexOrThrow(projection[2]))
@@ -38,7 +38,7 @@ class SearchManager(private var context: Context) {
         val outputTracks = mutableListOf<Track>()
 
         val selection = "(${MediaStore.Audio.Media.DISPLAY_NAME} LIKE ? OR ${MediaStore.Audio.Media.TITLE} LIKE ?)"
-        val selectionArgs = arrayOf("%${query}", "%${query}")
+        val selectionArgs = arrayOf("%${query}%", "%${query}%")
 
         try {
             context.contentResolver.query(

@@ -1,9 +1,12 @@
 package com.blyss2idk.musicapp
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -63,10 +66,7 @@ class MainActivity : ComponentActivity() {
 
         checkPermissions()
 
-        Log.i("FILETEST", "yaya1")
-
         sm = SearchManager(applicationContext)
-
     }
 
     // Ask for permissions for reading audio media
