@@ -1,13 +1,9 @@
 package com.blyss2idk.musicapp
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
-import android.database.Cursor
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -47,11 +43,11 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.blyss2idk.musicapp.data.DefaultThemes
 import com.blyss2idk.musicapp.data.TabType
+import com.blyss2idk.musicapp.tools.SearchManager
 import com.blyss2idk.musicapp.ui.theme.MusicappMain
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var sm: SearchManager
     private val theme = DefaultThemes.darkTheme2
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,8 +61,6 @@ class MainActivity : ComponentActivity() {
         }
 
         checkPermissions()
-
-        sm = SearchManager(applicationContext)
     }
 
     // Ask for permissions for reading audio media
@@ -192,7 +186,7 @@ class MainActivity : ComponentActivity() {
                 // Search results
                 // Show only if there is a query
                 if (query != "") {
-                    val searchResult = sm.search(query)
+                    val searchResult = SearchManager.search(applicationContext, query)
                     if (searchResult.size == 0) {
                         item {
                             StandardTab(TabType.EXCEPTION, "no results.")

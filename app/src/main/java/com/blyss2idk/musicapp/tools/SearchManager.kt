@@ -1,4 +1,4 @@
-package com.blyss2idk.musicapp
+package com.blyss2idk.musicapp.tools
 
 import android.content.Context
 import android.database.Cursor
@@ -7,7 +7,7 @@ import android.provider.MediaStore
 import android.util.Log
 import com.blyss2idk.musicapp.data.Track
 
-class SearchManager(private var context: Context) {
+object SearchManager {
 
     private val projection = arrayOf(
         MediaStore.Audio.Media._ID,            // ID of the audio file
@@ -33,7 +33,7 @@ class SearchManager(private var context: Context) {
         return Track(id, displayName, title, artist, duration, filePath)
     }
 
-    fun search(query: String): MutableList<Track> {
+    fun search(context: Context, query: String): MutableList<Track> {
 
         val outputTracks = mutableListOf<Track>()
 
