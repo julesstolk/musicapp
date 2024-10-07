@@ -1,5 +1,6 @@
 package com.blyss2idk.musicapp.tools
 
+import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import com.blyss2idk.musicapp.data.Track
@@ -7,12 +8,13 @@ import com.blyss2idk.musicapp.data.Track
 object PlayManager {
 
     // all time is in milliseconds
-    private var crossfade = 0
-    private var isPlaying = false
+//    private var crossfade = 0
+    private var currentlyPlaying: Track? = null
     private var offset = 0
 
-    private var playerPlaying = 0
-    private val mediaplayers = arrayOf(
+    private var totalPlayers = 1
+    private var currentPlayer = 0
+    private val mediaplayers = Array(totalPlayers) {
         MediaPlayer().apply {
             setAudioAttributes(
                 AudioAttributes.Builder()
@@ -21,15 +23,7 @@ object PlayManager {
                     .build()
             )
         }
-        , MediaPlayer().apply {
-            setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .build()
-            )
-        }
-    )
+    }
 
     private var queue = ArrayList<Track>()
 
@@ -51,24 +45,47 @@ object PlayManager {
     }
 
     fun currentlyPlaying(): Boolean {
-        return isPlaying
+        return currentlyPlaying != null
     }
 
-    fun setCrossfade(crossfade_: Int) {
-        crossfade = crossfade_
+//    fun setCrossfade(crossfade_: Int) {
+//        crossfade = crossfade_
+//    }
+
+    fun directPlay(track: Track, context: Context) {
+        // TODO WIP
+        if (track.uri != null) {
+            if (currentlyPlaying != null) {
+                mediaplayers[currentPlayer].apply {
+                    stop()
+                    setDataSource(context, track.uri)
+                    setOnPreparedListener {
+                        mediaplayers[currentPlayer].start()
+                        currentlyPlaying = track
+                    }
+                    setOnCompletionListener {
+
+                    }
+                    prepareAsync()
+                }
+            }
+        }
     }
 
     fun togglePlay() {
-        if (isPlaying) {
-            offset = mediaplayers[playerPlaying].currentPosition
-            mediaplayers[playerPlaying].stop()
-            isPlaying = false
+        if (currentlyPlaying != null) {
+            offset = mediaplayers[currentPlayer].currentPosition
+            mediaplayers[currentPlayer].stop()
         } else {
-            mediaplayers[playerPlaying].apply {
+            // TODO THIS WILL NOT WORK
+            mediaplayers[currentPlayer].apply {
                 seekTo(offset)
                 start()
             }
-            isPlaying = true
         }
     }
+
+//    fun fadeEnd(mp: MediaPlayer, duration: Int, start: Float, end: Float) {
+//
+//    }
 }
