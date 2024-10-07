@@ -1,13 +1,15 @@
 package com.blyss2idk.musicapp.data
 
 import android.graphics.Bitmap
+import android.net.Uri
 
 data class Track(val fileId: Long,
                  val fileName: String,
                  val title: String?,
                  val artist: String?,
                  val duration: Long,
-                 val filePath: String?) {
+                 val filePath: String?,
+                 val uri: Uri?) {
 
     var durationString: String
     var hasMetadata = false

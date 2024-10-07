@@ -1,5 +1,6 @@
 package com.blyss2idk.musicapp.tools
 
+import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
 import android.os.Build
@@ -30,7 +31,9 @@ object SearchManager {
         val duration = cursor.getLong(cursor.getColumnIndexOrThrow(projection[4]))
         val filePath = cursor.getString(cursor.getColumnIndexOrThrow(projection[5]))
 
-        return Track(id, displayName, title, artist, duration, filePath)
+        val uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
+
+        return Track(id, displayName, title, artist, duration, filePath, uri)
     }
 
     fun search(context: Context, query: String): MutableList<Track> {
