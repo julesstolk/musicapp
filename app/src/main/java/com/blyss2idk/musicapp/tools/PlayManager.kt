@@ -48,7 +48,7 @@ object PlayManager {
         queue.removeAt(index)
     }
 
-    fun currentlyPlaying(): Boolean {
+    fun currentTracklaying(): Boolean {
         return mediaPlaying
     }
 
@@ -57,16 +57,20 @@ object PlayManager {
 //    }
 
     // Only changes mediaPlaying of all logic
-    fun directPlay(track: Track, position: Int, context: Context) {
+    private fun directPlay(track: Track, position: Int, context: Context) {
         if (mediaPlaying) {
             mediaPlaying = false
             mediaplayers[currentPlayer].stop()
         }
-        if (currentlyPlaying != track) {
-            mediaplayers[currentPlayer].apply {
-                reset()
-                setDataSource(context, track.uri)
+        if (::currentlyPlaying.isInitialized) {
+            if (currentlyPlaying != track) {
+                mediaplayers[currentPlayer].apply {
+                    reset()
+                    setDataSource(context, track.uri)
+                }
             }
+        } else {
+            mediaplayers[currentPlayer].setDataSource(context, track.uri)
         }
         mediaplayers[currentPlayer].apply {
             setOnPreparedListener {
@@ -96,6 +100,11 @@ object PlayManager {
         queue.add(0, currentlyPlaying)
         currentlyPlaying = history.removeLast()
         directPlay(currentlyPlaying, 0, context)
+    }
+
+    fun startPlay(track: Track, context: Context) {
+        directPlay(track, 0, context)
+        currentlyPlaying = track
     }
 
     fun togglePlay(context: Context) {

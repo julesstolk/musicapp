@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.blyss2idk.musicapp.data.DefaultThemes
 import com.blyss2idk.musicapp.data.TabType
+import com.blyss2idk.musicapp.tools.PlayManager
 import com.blyss2idk.musicapp.tools.SearchManager
 import com.blyss2idk.musicapp.ui.theme.MusicappMain
 
@@ -174,6 +175,7 @@ class MainActivity : ComponentActivity() {
                 // Tabs for custom functions
                 // Show only if there is no query
                 // Implement functions !!!
+                // Hardcoded on TabType.SONG CHANGE LATER
                 if (query == "") {
                     items(theme.tabsVertical) { index ->
                         StandardTab(TabType.SONG,
@@ -201,7 +203,10 @@ class MainActivity : ComponentActivity() {
                                 TabType.SONG,
                                 result.fileName,
                                 "",
-                                result.durationString
+                                result.durationString,
+                                onClick = {
+                                    PlayManager.startPlay(result, applicationContext)
+                                }
                             )
                         }
                     }
