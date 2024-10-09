@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -225,7 +226,8 @@ class MainActivity : ComponentActivity() {
                     // REMOVE AUTOMATIC ARGUMENT LATER
                     onClick: () -> Unit = { todo() },
                     icon: Int? = null,
-                    buttons: List<@Composable () -> Unit> = listOf()) {
+                    Button1: (@Composable () -> Unit)? = null,
+                    Button2: (@Composable () -> Unit)? = null) {
 
         val songIcon = R.drawable.baseline_music_note_24
         val playlistIcon = R.drawable.baseline_library_music_24
@@ -242,71 +244,87 @@ class MainActivity : ComponentActivity() {
                 .background(theme.tabColor)
                 .alpha(theme.tabAlpha)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        onClick()
-                    }
-            ) {
-                Row {
+            Row() {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onClick()
+                        }
+                ) {
+                    Row {
 
-                    if (icon == null) {
-                        if (tabType == TabType.SONG) {
+                        if (icon == null) {
+                            if (tabType == TabType.SONG) {
+                                Image(
+                                    painter = painterResource(songIcon),
+                                    contentDescription = "song icon",
+                                    modifier = Modifier
+                                        .height(theme.tabSizeVertical.dp)
+                                )
+                            } else if (tabType == TabType.PLAYLIST) {
+                                Image(
+                                    painter = painterResource(playlistIcon),
+                                    contentDescription = "playlist icon"
+                                )
+                            }
+                        } else {
                             Image(
-                                painter = painterResource(songIcon),
-                                contentDescription = "song icon",
-                                modifier = Modifier
-                                    .height(theme.tabSizeVertical.dp)
-                            )
-                        } else if (tabType == TabType.PLAYLIST) {
-                            Image(
-                                painter = painterResource(playlistIcon),
-                                contentDescription = "playlist icon"
+                                painter = painterResource(icon),
+                                contentDescription = "customIcon"
                             )
                         }
-                    } else {
-                        Image(
-                            painter = painterResource(icon),
-                            contentDescription = "customIcon"
-                        )
-                    }
 
-                    Column(
-                        modifier = Modifier
-                            .padding(8.dp)
-                    ) {
-                        // First text
+                        Column(
+                            modifier = Modifier
+                                .padding(8.dp)
+                        ) {
+                            // First text
+                            Text(
+                                text = mainText,
+                                fontSize = theme.textSize.sp,
+                                color = theme.textColor
+                            )
+
+                            // Second text
+                            Text(
+                                text = secondaryText,
+                                color = theme.textColor
+                            )
+                        }
+
+                        // Third text
                         Text(
-                            text = mainText,
-                            fontSize = theme.textSize.sp,
+                            text = tertiaryText,
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically),
                             color = theme.textColor
                         )
-
-                        // Second text
-                        Text(
-                            text = secondaryText,
-                            color = theme.textColor
-                        )
                     }
-
-                    // Third text
-                    Text(
-                        text = tertiaryText,
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically),
-                        color = theme.textColor
-                    )
                 }
-            }
-
-            for (button in buttons) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .aspectRatio(1f)
+                
+                Row(
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    button()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .aspectRatio(1f)
+                    ) {
+                        if (Button1 != null) {
+                            Button1()
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .aspectRatio(1f)
+                    ) {
+                        if (Button2 != null) {
+                            Button2()
+                        }
+                    }
                 }
             }
         }
