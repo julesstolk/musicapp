@@ -10,7 +10,7 @@ import com.blyss2idk.musicapp.data.Track
 object PlayManager {
 
     // all time is in milliseconds
-//    private var crossfade = 0
+    //    private var crossfade = 0
     private var mediaPlaying: Boolean = false
     private var offset = 0
 
@@ -48,8 +48,12 @@ object PlayManager {
         queue.removeAt(index)
     }
 
-    fun currentTracklaying(): Boolean {
+    fun isCurrentlyPlaying(): Boolean {
         return mediaPlaying
+    }
+
+    fun currentTrackPlaying(): Track? {
+        return currentlyPlaying
     }
 
 //    fun setCrossfade(crossfade_: Int) {
@@ -91,14 +95,25 @@ object PlayManager {
     // Logic in this function, let directPlay() handle preparing and starting mediaplayer only
     // Except mediaPlaying!!!
     fun nextQueue(context: Context) {
-        history.add(currentlyPlaying)
+        if (queue.isEmpty() && !::currentlyPlaying.isInitialized) {
+            // no queue and no current track playing
+            return
+        }
+        currentlyPlaying = queue.removeAt(0)
+        directPlay(currentlyPlaying, 0, context)
+        if (queue.isEmpty() && ::currentlyPlaying.isInitialized) {
+            directPlay(currentlyPlaying, 0, context)
+        }
+        if (::currentlyPlaying.isInitialized) {
+            history.add(currentlyPlaying)
+        }
         currentlyPlaying = queue.removeAt(0)
         directPlay(currentlyPlaying, 0, context)
     }
 
     fun previousQueue(context: Context) {
         queue.add(0, currentlyPlaying)
-        currentlyPlaying = history.removeLast()
+        currentlyPlaying = history.removeAt(history.lastIndex)
         directPlay(currentlyPlaying, 0, context)
     }
 

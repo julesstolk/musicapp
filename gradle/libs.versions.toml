@@ -1,6 +1,5 @@
 [versions]
 agp = "8.6.0"
-androidYoutubeextractor = "2.1.0"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -11,7 +10,7 @@ activityCompose = "1.9.2"
 composeBom = "2024.04.01"
 
 [libraries]
-android-youtubeextractor = { module = "com.github.HaarigerHarald:android-youtubeExtractor", version.ref = "androidYoutubeextractor" }
+newpipeextractor = { group = "com.github.teamnewpipe", name = "NewPipeExtractor", version = "0.21.2"}
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

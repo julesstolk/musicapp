@@ -277,7 +277,7 @@ class MainActivity : ComponentActivity() {
 
                         Column(
                             modifier = Modifier
-                                .padding(8.dp)
+                                .padding(7.dp)
                         ) {
                             // First text
                             Text(
