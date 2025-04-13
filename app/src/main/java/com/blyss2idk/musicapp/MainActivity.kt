@@ -47,7 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import com.blyss2idk.musicapp.data.DefaultThemes
+import com.blyss2idk.musicapp.constant.DefaultThemes
 import com.blyss2idk.musicapp.data.TabType
 import com.blyss2idk.musicapp.tools.PlayManager
 import com.blyss2idk.musicapp.tools.SearchManager
@@ -357,6 +357,7 @@ class MainActivity : ComponentActivity() {
                     // REMOVE AUTOMATIC ARGUMENT LATER
                     onClick: () -> Unit = { todo() },
                     icon: Int? = null,
+                    background: Int? = null,
                     Button1: (@Composable () -> Unit)? = null,
                     Button2: (@Composable () -> Unit)? = null) {
 

@@ -18,5 +18,6 @@ data class Theme(
     val tabRoundedCornerShape: Int = 7,
     val searchButtonTextSpacing: Int = 10,
     val backgroundImage: Int? = null,
-    val topBarSpacing: Int = 20
+    val topBarSpacing: Int = 20,
+    val tabBackground: Int? = null
 )

@@ -9,7 +9,8 @@ data class Track(val fileId: Long,
                  val artist: String?,
                  val duration: Long,
                  val filePath: String?,
-                 val uri: Uri) {
+                 val uri: Uri
+) {
 
     var durationString: String
     var hasMetadata = false
