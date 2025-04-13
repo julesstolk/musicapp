@@ -51,17 +51,7 @@ object SearchManager {
                 selectionArgs,
                 null
             )?.use { cursor ->
-                Log.i("FILETEST", "yaya2")
-                if (cursor.count == 0) {
-                    Log.i("FILETEST", "empty")
-                } else {
-                    Log.i("FILETEST", "not empty")
-                }
                 while (cursor.moveToNext()) {
-                    Log.i(
-                        "FILETEST",
-                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME))
-                    )
 
                     outputTracks.add(cursorToTrackClass(cursor))
 
