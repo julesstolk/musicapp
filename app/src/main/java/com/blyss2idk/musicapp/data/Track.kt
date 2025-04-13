@@ -23,7 +23,10 @@ data class Track(val fileId: Long,
 
         val d = duration / 1000
         val durationMinutes = d / 60
-        val durationSeconds = d % 60
+        var durationSeconds: String = (d % 60).toString()
+        if (durationSeconds.length < 2) {
+            durationSeconds = "0$durationSeconds"
+        }
         durationString = "$durationMinutes:$durationSeconds"
     }
 }
