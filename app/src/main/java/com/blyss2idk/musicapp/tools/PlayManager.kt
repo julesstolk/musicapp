@@ -52,8 +52,12 @@ object PlayManager {
         return mediaPlaying
     }
 
-    fun currentTrackPlaying(): Track? {
+    fun currentTrackPlaying(): Track {
         return currentlyPlaying
+    }
+
+    fun getCurrentTimeInSeconds(): Int {
+        return mediaplayers[currentPlayer].currentPosition / 1000
     }
 
 //    fun setCrossfade(crossfade_: Int) {
@@ -64,7 +68,7 @@ object PlayManager {
     private fun directPlay(track: Track, position: Int, context: Context) {
         if (mediaPlaying) {
             mediaPlaying = false
-            mediaplayers[currentPlayer].stop()
+            mediaplayers[currentPlayer].pause()
         }
         if (::currentlyPlaying.isInitialized) {
             if (currentlyPlaying != track) {
@@ -126,9 +130,14 @@ object PlayManager {
         if (mediaPlaying) {
             // pause mediaplayer
             offset = mediaplayers[currentPlayer].currentPosition
-            mediaplayers[currentPlayer].stop()
+            mediaplayers[currentPlayer].pause()
+            mediaPlaying = false
         } else {
-            directPlay(currentlyPlaying, offset, context)
+            mediaplayers[currentPlayer].apply {
+                seekTo(offset)
+                start()
+            }
+            mediaPlaying = true
         }
     }
 

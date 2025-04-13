@@ -1,6 +1,7 @@
 package com.blyss2idk.musicapp
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -22,13 +23,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,6 +52,7 @@ import com.blyss2idk.musicapp.data.TabType
 import com.blyss2idk.musicapp.tools.PlayManager
 import com.blyss2idk.musicapp.tools.SearchManager
 import com.blyss2idk.musicapp.ui.theme.MusicappMain
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
 
@@ -58,7 +64,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MusicappMain {
-                DefaultScreen()
+                DefaultScreen(this)
             }
         }
 
@@ -99,12 +105,32 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @Preview
     @Composable
-    fun DefaultScreen() {
+    fun DefaultScreen(context: Context) {
         val moreIcon = R.drawable.baseline_more_vert_24
         var query by remember {
             mutableStateOf("")
+        }
+        var songPlaying by remember {
+            mutableStateOf(false)
+        }
+        var secondsSong by remember {
+            mutableStateOf("")
+        }
+
+        LaunchedEffect(songPlaying) {
+            while(songPlaying) {
+                while (true) {
+                    delay(1000L)
+                    val d = PlayManager.getCurrentTimeInSeconds()
+                    val durationMinutes = d / 60
+                    var durationSeconds: String = (d % 60).toString()
+                    if (durationSeconds.length < 2) {
+                        durationSeconds = "0$durationSeconds"
+                    }
+                    secondsSong = "$durationMinutes:$durationSeconds"
+                }
+            }
         }
 
         Box (
@@ -131,8 +157,8 @@ class MainActivity : ComponentActivity() {
                 item {
                     Text(
                         modifier = Modifier
-                            .padding(vertical = 10.dp),
-                        text = if (query == "") "main" else "searching...",
+                            .padding(vertical = theme.topBarSpacing.dp),
+                        text = if (query == "") "main" else "searching",
                         color = theme.textColor
                     )
                 }
@@ -190,7 +216,7 @@ class MainActivity : ComponentActivity() {
                 // Show only if there is a query
                 if (query != "") {
                     val searchResult = SearchManager.search(applicationContext, query)
-                    if (searchResult.size == 0) {
+                    if (searchResult.isEmpty()) {
                         item {
                             StandardTab(TabType.EXCEPTION, "no results.")
                         }
@@ -207,7 +233,112 @@ class MainActivity : ComponentActivity() {
                                 result.durationString,
                                 onClick = {
                                     PlayManager.startPlay(result, applicationContext)
+                                    songPlaying = true
                                 }
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (songPlaying || secondsSong != "") {
+                Row(
+                    modifier = Modifier
+                        .height(theme.tabSizeVertical.dp)
+                        .fillMaxWidth()
+                        .padding(end = theme.tabPadding.dp)
+                        .padding(vertical = theme.tabPadding.dp)
+                        .padding(bottom = theme.tabPadding.dp)
+                        .clip(RoundedCornerShape(theme.tabRoundedCornerShape.dp))
+                        .background(theme.tabColor)
+                        .alpha(theme.tabAlpha)
+                        .align(Alignment.BottomEnd),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.baseline_surround_sound_24),
+                        contentDescription = "playing song icon",
+                        modifier = Modifier
+                            .height(theme.tabSizeVertical.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
+
+                    Text(
+                        text = PlayManager.currentTrackPlaying().fileName,
+                        fontSize = theme.textSize.sp,
+                        color = theme.textColor
+                    )
+
+                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
+
+                    Text(
+                        text = secondsSong,
+                        fontSize = theme.textSize.sp,
+                        color = theme.textColor
+                    )
+
+                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .aspectRatio(1f)
+                    ) {
+                        Button(
+                            onClick = { PlayManager.previousQueue(context) },
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.baseline_skip_previous_24),
+                                contentDescription = "previous song",
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .aspectRatio(1f)
+                    ) {
+                        Button(
+                            onClick = {
+                                PlayManager.togglePlay(context)
+                                songPlaying = !songPlaying
+                                      },
+                        ) {
+                            if (songPlaying) {
+                                Image(
+                                    painter = painterResource(R.drawable.baseline_pause_24),
+                                    contentDescription = "pause song",
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(R.drawable.baseline_play_arrow_24),
+                                    contentDescription = "play song",
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .aspectRatio(1f)
+                    ) {
+                        Button(
+                            onClick = { PlayManager.nextQueue(context) },
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.baseline_skip_next_24),
+                                contentDescription = "next song",
+                                modifier = Modifier.fillMaxSize() // Make the image fill the button
                             )
                         }
                     }
@@ -244,7 +375,7 @@ class MainActivity : ComponentActivity() {
                 .background(theme.tabColor)
                 .alpha(theme.tabAlpha)
         ) {
-            Row() {
+            Row {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
