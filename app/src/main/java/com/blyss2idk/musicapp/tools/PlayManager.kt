@@ -77,29 +77,25 @@ object PlayManager {
             mediaPlaying = false
             mediaplayers[currentPlayer].pause()
         }
-        if (::currentlyPlaying.isInitialized) {
-            if (currentlyPlaying != track) {
-                mediaplayers[currentPlayer].apply {
-                    reset()
-                    setDataSource(context, track.uri)
-                }
-            }
-        } else {
-            mediaplayers[currentPlayer].setDataSource(context, track.uri)
+
+        val player = mediaplayers[currentPlayer]
+
+        player.reset() // Always reset
+        player.setDataSource(context, track.uri) // Always set data source after reset
+
+        currentlyPlaying = track
+
+        player.setOnPreparedListener {
+            player.seekTo(position)
+            player.start()
+            mediaPlaying = true
         }
-        mediaplayers[currentPlayer].apply {
-            setOnPreparedListener {
-                mediaplayers[currentPlayer].apply {
-                    seekTo(position)
-                    start()
-                }
-                mediaPlaying = true
-            }
-            setOnCompletionListener {
-                nextQueue(context)
-            }
-            prepareAsync()
+
+        player.setOnCompletionListener {
+            nextQueue(context)
         }
+
+        player.prepareAsync()
     }
 
     // Function is called when track ends:
@@ -110,15 +106,15 @@ object PlayManager {
             // no queue and no current track playing
             return
         }
-        currentlyPlaying = queue.removeAt(0)
-        directPlay(currentlyPlaying, 0, context)
-        if (queue.isEmpty() && ::currentlyPlaying.isInitialized) {
-            directPlay(currentlyPlaying, 0, context)
-        }
+
         if (::currentlyPlaying.isInitialized) {
             history.add(currentlyPlaying)
         }
-        currentlyPlaying = queue.removeAt(0)
+
+        if (!queue.isEmpty()) {
+            currentlyPlaying = queue.removeAt(0)
+        }
+
         directPlay(currentlyPlaying, 0, context)
     }
 
@@ -130,7 +126,6 @@ object PlayManager {
 
     fun startPlay(track: Track, context: Context) {
         directPlay(track, 0, context)
-        currentlyPlaying = track
     }
 
     fun togglePlay(context: Context) {

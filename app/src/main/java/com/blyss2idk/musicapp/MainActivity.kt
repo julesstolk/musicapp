@@ -12,7 +12,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,17 +22,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,12 +42,13 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import com.blyss2idk.musicapp.constant.DefaultOptions
 import com.blyss2idk.musicapp.constant.DefaultThemes
 import com.blyss2idk.musicapp.data.TabType
+import com.blyss2idk.musicapp.data.Track
 import com.blyss2idk.musicapp.tools.PlayManager
 import com.blyss2idk.musicapp.tools.SearchManager
 import com.blyss2idk.musicapp.ui.theme.MusicappMain
@@ -234,7 +234,8 @@ class MainActivity : ComponentActivity() {
                                     PlayManager.startPlay(result, applicationContext)
                                     startedPlaying = true
                                     songPlaying = true
-                                }
+                                },
+                                buttons = listOf ({ DropDownGenerator(result) })
                             )
                         }
                     }
@@ -242,225 +243,236 @@ class MainActivity : ComponentActivity() {
             }
 
             if (startedPlaying) {
-                Row(
+                Box(
                     modifier = Modifier
-                        .height(theme.tabSizeVertical.dp)
-                        .fillMaxWidth()
-                        .padding(end = theme.tabPadding.dp)
-                        .padding(vertical = theme.tabPadding.dp)
-                        .padding(bottom = theme.tabPadding.dp)
-                        .clip(RoundedCornerShape(theme.tabRoundedCornerShape.dp))
-                        .background(theme.tabColor)
-                        .alpha(theme.tabAlpha)
                         .align(Alignment.BottomEnd),
-                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = painterResource(R.drawable.baseline_surround_sound_24),
-                        contentDescription = "playing song icon",
-                        modifier = Modifier
-                            .height(theme.tabSizeVertical.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
-
-                    Text(
-                        text = PlayManager.currentTrackPlaying()!!.fileName,
-                        fontSize = theme.textSize.sp,
-                        color = theme.textColor
-                    )
-
-                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
-
-                    Text(
-                        text = secondsSong,
-                        fontSize = theme.textSize.sp,
-                        color = theme.textColor
-                    )
-
-                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .aspectRatio(1f)
-                    ) {
-                        Button(
-                            onClick = { PlayManager.previousQueue(context) },
-                        ) {
-                            Image(
-                                painter = painterResource(R.drawable.baseline_skip_previous_24),
-                                contentDescription = "previous song",
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .aspectRatio(1f)
-                    ) {
-                        Button(
-                            onClick = {
+                    StandardTab(
+                        TabType.CURRENT_SONG,
+                        mainText = PlayManager.currentTrackPlaying()!!.fileName,
+                        secondaryText = secondsSong,
+                        tertiaryText = "",
+                        onClick = {null},
+                        buttons = listOf({
+                            IconButton(onClick = {PlayManager.previousQueue(context)}) {
+                                Icon(painter = painterResource(R.drawable.baseline_skip_previous_24),
+                                    contentDescription = "previous queue",
+                                    tint = theme.textColor)
+                            }
+                        }, {
+                            IconButton(onClick = {
                                 PlayManager.togglePlay(context)
                                 songPlaying = !songPlaying
-                                      },
-                        ) {
-                            if (songPlaying) {
-                                Image(
-                                    painter = painterResource(R.drawable.baseline_pause_24),
-                                    contentDescription = "pause song",
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            } else {
-                                Image(
-                                    painter = painterResource(R.drawable.baseline_play_arrow_24),
-                                    contentDescription = "play song",
-                                    modifier = Modifier.fillMaxSize()
-                                )
+                            }) {
+                                if (songPlaying) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.baseline_pause_24),
+                                        contentDescription = "pause track",
+                                        tint = theme.textColor
+                                    )
+                                } else {
+                                    Icon(
+                                        painter = painterResource(R.drawable.baseline_play_arrow_24),
+                                        contentDescription = "play track",
+                                        tint = theme.textColor
+                                    )
+                                }
                             }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .aspectRatio(1f)
-                    ) {
-                        Button(
-                            onClick = { PlayManager.nextQueue(context) },
-                        ) {
-                            Image(
-                                painter = painterResource(R.drawable.baseline_skip_next_24),
-                                contentDescription = "next song",
-                                modifier = Modifier.fillMaxSize() // Make the image fill the button
-                            )
-                        }
-                    }
+                        }, {
+                            IconButton(onClick = {PlayManager.nextQueue(context)}) {
+                                Icon(painter = painterResource(R.drawable.baseline_skip_next_24),
+                                    contentDescription = "next queue",
+                                    tint = theme.textColor)
+                            }
+                        })
+                    )
                 }
             }
+
+//            if (startedPlaying) {
+//                Row(
+//                    modifier = Modifier
+//                        .height(theme.tabSizeVertical.dp)
+//                        .fillMaxWidth()
+//                        .padding(end = theme.tabPadding.dp)
+//                        .padding(vertical = theme.tabPadding.dp)
+//                        .padding(bottom = theme.tabPadding.dp)
+//                        .clip(RoundedCornerShape(theme.tabRoundedCornerShape.dp))
+//                        .background(theme.tabColor)
+//                        .alpha(theme.tabAlpha)
+//                        .align(Alignment.BottomEnd),
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//                    Image(
+//                        painter = painterResource(R.drawable.baseline_surround_sound_24),
+//                        contentDescription = "playing song icon",
+//                        modifier = Modifier
+//                            .height(theme.tabSizeVertical.dp)
+//                    )
+//
+//                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
+//
+//                    Text(
+//                        text = PlayManager.currentTrackPlaying()!!.fileName,
+//                        fontSize = theme.textSize.sp,
+//                        color = theme.textColor
+//                    )
+//
+//                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
+//
+//                    Text(
+//                        text = secondsSong,
+//                        fontSize = theme.textSize.sp,
+//                        color = theme.textColor
+//                    )
+//
+//                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
+//
+//                    Box(
+//                        modifier = Modifier
+//                            .fillMaxHeight()
+//                            .aspectRatio(1f)
+//                    ) {
+//                        Button(
+//                            onClick = { PlayManager.previousQueue(context) },
+//                        ) {
+//                            Image(
+//                                painter = painterResource(R.drawable.baseline_skip_previous_24),
+//                                contentDescription = "previous song",
+//                                modifier = Modifier.fillMaxSize()
+//                            )
+//                        }
+//                    }
+//
+//                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
+//
+//                    Box(
+//                        modifier = Modifier
+//                            .fillMaxHeight()
+//                            .aspectRatio(1f)
+//                    ) {
+//                        Button(
+//                            onClick = {
+//                                PlayManager.togglePlay(context)
+//                                songPlaying = !songPlaying
+//                                      },
+//                        ) {
+//                            if (songPlaying) {
+//                                Image(
+//                                    painter = painterResource(R.drawable.baseline_pause_24),
+//                                    contentDescription = "pause song",
+//                                    modifier = Modifier.fillMaxSize()
+//                                )
+//                            } else {
+//                                Image(
+//                                    painter = painterResource(R.drawable.baseline_play_arrow_24),
+//                                    contentDescription = "play song",
+//                                    modifier = Modifier.fillMaxSize()
+//                                )
+//                            }
+//                        }
+//                    }
+//
+//                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
+//
+//                    Box(
+//                        modifier = Modifier
+//                            .fillMaxHeight()
+//                            .aspectRatio(1f)
+//                    ) {
+//                        Button(
+//                            onClick = { PlayManager.nextQueue(context) },
+//                        ) {
+//                            Image(
+//                                painter = painterResource(R.drawable.baseline_skip_next_24),
+//                                contentDescription = "next song",
+//                                modifier = Modifier.fillMaxSize() // Make the image fill the button
+//                            )
+//                        }
+//                    }
+//                }
+//            }
         }
     }
 
     fun todo() {}
 
     @Composable
-    fun StandardTab(tabType: TabType,
-                    mainText: String,
-                    secondaryText: String = "",
-                    tertiaryText: String = "",
-                    // REMOVE AUTOMATIC ARGUMENT LATER
-                    onClick: () -> Unit = { todo() },
-                    icon: Int? = null,
-                    background: Int? = null,
-                    Button1: (@Composable () -> Unit)? = null,
-                    Button2: (@Composable () -> Unit)? = null) {
-
-        val songIcon = R.drawable.baseline_music_note_24
-        val playlistIcon = R.drawable.baseline_library_music_24
-
-        // Row containing texts and buttons
+    fun StandardTab(
+        tabType: TabType,
+        mainText: String,
+        secondaryText: String = "",
+        tertiaryText: String = "",
+        onClick: () -> Unit = {},
+        icon: Int? = null,
+        background: Int? = null,
+        buttons: List<@Composable (() -> Unit)>? = null,
+    ) {
+        val useIcon = tabType.icon()
+        if (icon != null) {
+            val useIcon = icon
+        }
 
         Row(
             modifier = Modifier
                 .height(theme.tabSizeVertical.dp)
                 .fillMaxWidth()
-                .padding(end = theme.tabPadding.dp)
-                .padding(vertical = theme.tabPadding.dp)
+                .padding(horizontal = theme.tabPadding.dp, vertical = theme.tabPadding.dp)
                 .clip(RoundedCornerShape(theme.tabRoundedCornerShape.dp))
                 .background(theme.tabColor)
-                .alpha(theme.tabAlpha)
+                .alpha(theme.tabAlpha),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            onClick()
-                        }
-                ) {
-                    Row {
+            Image(
+                painter = painterResource(useIcon),
+                contentDescription = "customIcon",
+                modifier = Modifier
+                    .height(theme.tabSizeVertical.dp)
+                    .padding(end = 8.dp)
+            )
 
-                        if (icon == null) {
-                            if (tabType == TabType.SONG) {
-                                Image(
-                                    painter = painterResource(songIcon),
-                                    contentDescription = "song icon",
-                                    modifier = Modifier
-                                        .height(theme.tabSizeVertical.dp)
-                                )
-                            } else if (tabType == TabType.PLAYLIST) {
-                                Image(
-                                    painter = painterResource(playlistIcon),
-                                    contentDescription = "playlist icon"
-                                )
-                            }
-                        } else {
-                            Image(
-                                painter = painterResource(icon),
-                                contentDescription = "customIcon"
-                            )
-                        }
+            // Middle: Texts (clickable area)
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { onClick() }
+            ) {
+                Text(
+                    text = mainText,
+                    fontSize = theme.textSize.sp,
+                    color = theme.textColor
+                )
+                Text(
+                    text = secondaryText,
+                    color = theme.textColor
+                )
+            }
 
-                        Column(
-                            modifier = Modifier
-                                .padding(7.dp)
-                        ) {
-                            // First text
-                            Text(
-                                text = mainText,
-                                fontSize = theme.textSize.sp,
-                                color = theme.textColor
-                            )
+            // Right: Tertiary text
+            if (tertiaryText.isNotBlank()) {
+                Text(
+                    text = tertiaryText,
+                    color = theme.textColor,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            }
 
-                            // Second text
-                            Text(
-                                text = secondaryText,
-                                color = theme.textColor
-                            )
-                        }
-
-                        // Third text
-                        Text(
-                            text = tertiaryText,
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically),
-                            color = theme.textColor
-                        )
-                    }
-                }
-                
-                Row(
-                    horizontalArrangement = Arrangement.End
-                ) {
+            // Buttons
+            if (buttons != null) {
+                for (button in buttons) {
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .aspectRatio(1f)
+                            .aspectRatio(1f),
+                        contentAlignment = Alignment.Center
                     ) {
-                        if (Button1 != null) {
-                            Button1()
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .aspectRatio(1f)
-                    ) {
-                        if (Button2 != null) {
-                            Button2()
-                        }
+                        button()
                     }
                 }
             }
         }
     }
+
 
     fun getStringFromTime(d: Int): String {
         val durationMinutes = d / 60
@@ -469,5 +481,38 @@ class MainActivity : ComponentActivity() {
             durationSeconds = "0$durationSeconds"
         }
         return "$durationMinutes:$durationSeconds"
+    }
+
+    @Composable
+    fun DropDownGenerator(track: Track) {
+        val allOptions = DefaultOptions.getAllSongOptions(track)
+        var expanded by remember {mutableStateOf(false)}
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = theme.tabColor),
+            contentAlignment = Alignment.Center
+        ) {
+            IconButton(onClick = { expanded = !expanded }) {
+                Icon(painter = painterResource(R.drawable.baseline_more_vert_24),
+                    contentDescription = "more options",
+                    tint = theme.textColor)
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                for (option in allOptions) {
+                    DropdownMenuItem(
+                        text = { Text(option.title) },
+                        onClick = {
+                            option.onChange()
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
     }
 }

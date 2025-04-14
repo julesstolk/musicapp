@@ -4,15 +4,20 @@ import com.blyss2idk.musicapp.R
 
 enum class TabType {
     SONG {
-        fun icon() = R.drawable.baseline_music_note_24
+        override fun icon() = R.drawable.baseline_music_note_24
     },
     PLAYLIST {
-        fun icon() = R.drawable.baseline_library_music_24
+        override fun icon() = R.drawable.baseline_library_music_24
     },
     PREFERENCE {
-        fun icon() = R.drawable.baseline_settings_suggest_24
+        override fun icon() = R.drawable.baseline_settings_suggest_24
     },
     EXCEPTION {
-        fun icon() = R.drawable.baseline_cancel_24
-    }
+        override fun icon() = R.drawable.baseline_cancel_24
+    },
+    CURRENT_SONG {
+        override fun icon() = R.drawable.baseline_surround_sound_24
+    };
+
+    abstract fun icon(): Int
 }
