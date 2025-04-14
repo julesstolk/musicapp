@@ -48,12 +48,19 @@ object PlayManager {
         queue.removeAt(index)
     }
 
+    fun clearQueue() {
+        queue.clear()
+    }
+
     fun isCurrentlyPlaying(): Boolean {
         return mediaPlaying
     }
 
-    fun currentTrackPlaying(): Track {
-        return currentlyPlaying
+    fun currentTrackPlaying(): Track? {
+        if (::currentlyPlaying.isInitialized) {
+            return currentlyPlaying
+        }
+        return null
     }
 
     fun getCurrentTimeInSeconds(): Int {

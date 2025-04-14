@@ -57,6 +57,7 @@ import kotlinx.coroutines.delay
 class MainActivity : ComponentActivity() {
 
     private val theme = DefaultThemes.darkTheme2
+    var startedPlaying = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,7 +116,10 @@ class MainActivity : ComponentActivity() {
             mutableStateOf(false)
         }
         var secondsSong by remember {
-            mutableStateOf("")
+            mutableStateOf(getStringFromTime(PlayManager.getCurrentTimeInSeconds()))
+        }
+        var startedPlaying by remember{
+            mutableStateOf(false)
         }
 
         LaunchedEffect(songPlaying) {
@@ -123,12 +127,7 @@ class MainActivity : ComponentActivity() {
                 while (true) {
                     delay(1000L)
                     val d = PlayManager.getCurrentTimeInSeconds()
-                    val durationMinutes = d / 60
-                    var durationSeconds: String = (d % 60).toString()
-                    if (durationSeconds.length < 2) {
-                        durationSeconds = "0$durationSeconds"
-                    }
-                    secondsSong = "$durationMinutes:$durationSeconds"
+                    secondsSong = getStringFromTime(d)
                 }
             }
         }
@@ -224,15 +223,16 @@ class MainActivity : ComponentActivity() {
                     items(searchResult.size) { index ->
                         val result = searchResult[index]
                         if (result.useMetadata) {
-
+                            // will probably stay irrelevant idk
                         } else {
                             StandardTab(
                                 TabType.SONG,
                                 result.fileName,
-                                "",
                                 result.durationString,
+                                "",
                                 onClick = {
                                     PlayManager.startPlay(result, applicationContext)
+                                    startedPlaying = true
                                     songPlaying = true
                                 }
                             )
@@ -241,7 +241,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            if (songPlaying || secondsSong != "") {
+            if (startedPlaying) {
                 Row(
                     modifier = Modifier
                         .height(theme.tabSizeVertical.dp)
@@ -265,7 +265,7 @@ class MainActivity : ComponentActivity() {
                     Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
 
                     Text(
-                        text = PlayManager.currentTrackPlaying().fileName,
+                        text = PlayManager.currentTrackPlaying()!!.fileName,
                         fontSize = theme.textSize.sp,
                         color = theme.textColor
                     )
@@ -460,5 +460,14 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    fun getStringFromTime(d: Int): String {
+        val durationMinutes = d / 60
+        var durationSeconds: String = (d % 60).toString()
+        if (durationSeconds.length < 2) {
+            durationSeconds = "0$durationSeconds"
+        }
+        return "$durationMinutes:$durationSeconds"
     }
 }
