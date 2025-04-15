@@ -1,4 +1,4 @@
-package com.blyss2idk.musicapp
+package com.blyss.musicapp
 
 import org.junit.Test
 

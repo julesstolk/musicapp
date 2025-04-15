@@ -1,4 +1,4 @@
-package com.blyss2idk.musicapp.ui.theme
+package com.blyss.musicapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

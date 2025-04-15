@@ -1,8 +1,8 @@
-package com.blyss2idk.musicapp.constant
+package com.blyss.musicapp.constant
 
 import androidx.compose.ui.graphics.Color
-import com.blyss2idk.musicapp.R
-import com.blyss2idk.musicapp.data.Theme
+import com.blyss.musicapp.R
+import com.blyss.musicapp.data.Theme
 
 class DefaultThemes {
     companion object {

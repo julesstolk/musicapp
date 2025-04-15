@@ -1,4 +1,4 @@
-package com.blyss2idk.musicapp.tools
+package com.blyss.musicapp.tools
 
 import android.content.ContentUris
 import android.content.Context
@@ -6,7 +6,7 @@ import android.database.Cursor
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
-import com.blyss2idk.musicapp.data.Track
+import com.blyss.musicapp.data.Track
 
 object SearchManager {
 

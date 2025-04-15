@@ -1,14 +1,15 @@
+// app level
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
 }
 
 android {
-    namespace = "com.blyss2idk.musicapp"
+    namespace = "com.blyss.musicapp"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.blyss2idk.musicapp"
+        applicationId = "com.blyss.musicapp"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -58,12 +59,11 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.newpipeextractor)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.androidx.ui.test.manifest)
 }

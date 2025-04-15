@@ -1,6 +1,6 @@
-package com.blyss2idk.musicapp.data
+package com.blyss.musicapp.data
 
-import com.blyss2idk.musicapp.R
+import com.blyss.musicapp.R
 
 enum class TabType {
     SONG {

@@ -1,9 +1,9 @@
-package com.blyss2idk.musicapp.tools
+package com.blyss.musicapp.tools
 
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
-import com.blyss2idk.musicapp.data.Track
+import com.blyss.musicapp.data.Track
 
 
 // - hardcoded on no crossfade rn

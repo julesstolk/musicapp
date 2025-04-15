@@ -1,4 +1,4 @@
-package com.blyss2idk.musicapp.data
+package com.blyss.musicapp.data
 
 enum class OptionType {
     TOGGLE, SLIDER, DROPDOWN, BUTTON

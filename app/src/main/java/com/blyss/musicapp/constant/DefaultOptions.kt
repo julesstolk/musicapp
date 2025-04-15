@@ -1,10 +1,10 @@
-package com.blyss2idk.musicapp.constant
+package com.blyss.musicapp.constant
 
-import com.blyss2idk.musicapp.data.Option
-import com.blyss2idk.musicapp.data.OptionType
-import com.blyss2idk.musicapp.R
-import com.blyss2idk.musicapp.data.Track
-import com.blyss2idk.musicapp.tools.PlayManager
+import com.blyss.musicapp.data.Option
+import com.blyss.musicapp.data.OptionType
+import com.blyss.musicapp.R
+import com.blyss.musicapp.data.Track
+import com.blyss.musicapp.tools.PlayManager
 
 object DefaultOptions {
 

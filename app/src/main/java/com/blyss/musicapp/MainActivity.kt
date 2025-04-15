@@ -1,4 +1,4 @@
-package com.blyss2idk.musicapp
+package com.blyss.musicapp
 
 import android.Manifest
 import android.content.Context
@@ -45,16 +45,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import com.blyss2idk.musicapp.constant.DefaultOptions
-import com.blyss2idk.musicapp.constant.DefaultThemes
-import com.blyss2idk.musicapp.data.TabType
-import com.blyss2idk.musicapp.data.Track
-import com.blyss2idk.musicapp.tools.PlayManager
-import com.blyss2idk.musicapp.tools.SearchManager
-import com.blyss2idk.musicapp.ui.theme.MusicappMain
+import com.blyss.musicapp.constant.DefaultOptions
+import com.blyss.musicapp.constant.DefaultThemes
+import com.blyss.musicapp.data.TabType
+import com.blyss.musicapp.data.Track
+import com.blyss.musicapp.tools.PlayManager
+import com.blyss.musicapp.tools.SearchManager
+import com.blyss.musicapp.ui.theme.MusicappMain
 import kotlinx.coroutines.delay
-import kotlin.math.max
-import kotlin.math.min
 
 class MainActivity : ComponentActivity() {
 
