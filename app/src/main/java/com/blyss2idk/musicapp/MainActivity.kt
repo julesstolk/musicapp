@@ -53,11 +53,13 @@ import com.blyss2idk.musicapp.tools.PlayManager
 import com.blyss2idk.musicapp.tools.SearchManager
 import com.blyss2idk.musicapp.ui.theme.MusicappMain
 import kotlinx.coroutines.delay
+import kotlin.math.max
+import kotlin.math.min
 
 class MainActivity : ComponentActivity() {
 
     private val theme = DefaultThemes.darkTheme2
-    var startedPlaying = false
+    val showIconButtons = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -172,7 +174,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         TextField(
                             modifier = Modifier
-                                .weight(5f),
+                                .weight(6f),
                             value = query,
                             onValueChange = { text ->
                                 query = text
@@ -187,7 +189,7 @@ class MainActivity : ComponentActivity() {
                         ) {
                             Image(
                                 painter = painterResource(id = moreIcon),
-                                contentDescription = "More"
+                                contentDescription = "more"
                             )
                         }
                     }
@@ -228,6 +230,7 @@ class MainActivity : ComponentActivity() {
                             StandardTab(
                                 TabType.SONG,
                                 result.fileName,
+                                //result.fileName.slice(0..(max(5, min(result.fileName.length - 1, 34 - 5*showIconButtons)))),
                                 result.durationString,
                                 "",
                                 onClick = {
@@ -235,7 +238,7 @@ class MainActivity : ComponentActivity() {
                                     startedPlaying = true
                                     songPlaying = true
                                 },
-                                buttons = listOf ({ DropDownGenerator(result) })
+                                buttons = listOf { SongButtonsGenerator(result, showIconButtons) }
                             )
                         }
                     }
@@ -288,110 +291,6 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
-
-//            if (startedPlaying) {
-//                Row(
-//                    modifier = Modifier
-//                        .height(theme.tabSizeVertical.dp)
-//                        .fillMaxWidth()
-//                        .padding(end = theme.tabPadding.dp)
-//                        .padding(vertical = theme.tabPadding.dp)
-//                        .padding(bottom = theme.tabPadding.dp)
-//                        .clip(RoundedCornerShape(theme.tabRoundedCornerShape.dp))
-//                        .background(theme.tabColor)
-//                        .alpha(theme.tabAlpha)
-//                        .align(Alignment.BottomEnd),
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//                    Image(
-//                        painter = painterResource(R.drawable.baseline_surround_sound_24),
-//                        contentDescription = "playing song icon",
-//                        modifier = Modifier
-//                            .height(theme.tabSizeVertical.dp)
-//                    )
-//
-//                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
-//
-//                    Text(
-//                        text = PlayManager.currentTrackPlaying()!!.fileName,
-//                        fontSize = theme.textSize.sp,
-//                        color = theme.textColor
-//                    )
-//
-//                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
-//
-//                    Text(
-//                        text = secondsSong,
-//                        fontSize = theme.textSize.sp,
-//                        color = theme.textColor
-//                    )
-//
-//                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
-//
-//                    Box(
-//                        modifier = Modifier
-//                            .fillMaxHeight()
-//                            .aspectRatio(1f)
-//                    ) {
-//                        Button(
-//                            onClick = { PlayManager.previousQueue(context) },
-//                        ) {
-//                            Image(
-//                                painter = painterResource(R.drawable.baseline_skip_previous_24),
-//                                contentDescription = "previous song",
-//                                modifier = Modifier.fillMaxSize()
-//                            )
-//                        }
-//                    }
-//
-//                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
-//
-//                    Box(
-//                        modifier = Modifier
-//                            .fillMaxHeight()
-//                            .aspectRatio(1f)
-//                    ) {
-//                        Button(
-//                            onClick = {
-//                                PlayManager.togglePlay(context)
-//                                songPlaying = !songPlaying
-//                                      },
-//                        ) {
-//                            if (songPlaying) {
-//                                Image(
-//                                    painter = painterResource(R.drawable.baseline_pause_24),
-//                                    contentDescription = "pause song",
-//                                    modifier = Modifier.fillMaxSize()
-//                                )
-//                            } else {
-//                                Image(
-//                                    painter = painterResource(R.drawable.baseline_play_arrow_24),
-//                                    contentDescription = "play song",
-//                                    modifier = Modifier.fillMaxSize()
-//                                )
-//                            }
-//                        }
-//                    }
-//
-//                    Spacer(modifier = Modifier.width(theme.searchButtonTextSpacing.dp))
-//
-//                    Box(
-//                        modifier = Modifier
-//                            .fillMaxHeight()
-//                            .aspectRatio(1f)
-//                    ) {
-//                        Button(
-//                            onClick = { PlayManager.nextQueue(context) },
-//                        ) {
-//                            Image(
-//                                painter = painterResource(R.drawable.baseline_skip_next_24),
-//                                contentDescription = "next song",
-//                                modifier = Modifier.fillMaxSize() // Make the image fill the button
-//                            )
-//                        }
-//                    }
-//                }
-//            }
         }
     }
 
@@ -408,9 +307,9 @@ class MainActivity : ComponentActivity() {
         background: Int? = null,
         buttons: List<@Composable (() -> Unit)>? = null,
     ) {
-        val useIcon = tabType.icon()
+        var useIcon = tabType.icon()
         if (icon != null) {
-            val useIcon = icon
+            useIcon = icon
         }
 
         Row(
@@ -423,12 +322,14 @@ class MainActivity : ComponentActivity() {
                 .alpha(theme.tabAlpha),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
+            Icon(
                 painter = painterResource(useIcon),
-                contentDescription = "customIcon",
+                contentDescription = tabType.toString(),
                 modifier = Modifier
-                    .height(theme.tabSizeVertical.dp)
-                    .padding(end = 8.dp)
+                    .height((theme.tabSizeVertical * 0.6).dp)
+                    .aspectRatio(1F)
+                    .padding(end = 8.dp),
+                tint = theme.textColor
             )
 
             // Middle: Texts (clickable area)
@@ -440,11 +341,13 @@ class MainActivity : ComponentActivity() {
                 Text(
                     text = mainText,
                     fontSize = theme.textSize.sp,
-                    color = theme.textColor
+                    color = theme.textColor,
+                    maxLines = 1
                 )
                 Text(
                     text = secondaryText,
-                    color = theme.textColor
+                    color = theme.textColor,
+                    maxLines = 1
                 )
             }
 
@@ -453,7 +356,8 @@ class MainActivity : ComponentActivity() {
                 Text(
                     text = tertiaryText,
                     color = theme.textColor,
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    maxLines = 1
                 )
             }
 
@@ -463,6 +367,7 @@ class MainActivity : ComponentActivity() {
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
+                            //.weight(1f)
                             .aspectRatio(1f),
                         contentAlignment = Alignment.Center
                     ) {
@@ -484,21 +389,42 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun DropDownGenerator(track: Track) {
+    fun SongButtonsGenerator(track: Track, optionsWithIcon: Int = 0) {
         val allOptions = DefaultOptions.getAllSongOptions(track)
-        var expanded by remember {mutableStateOf(false)}
+        var expanded by remember { mutableStateOf(false) }
 
-        Box(
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            for (i in 0 until optionsWithIcon) {
+                val option = allOptions[i]
+                Box (
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    IconButton(onClick = { option.onChange() }) {
+                        Icon(
+                            painter = painterResource(option.icon),
+                            contentDescription = option.title,
+                            tint = theme.textColor
+                        )
+                    }
+                }
+            }
+        }
+
+        Box (
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = theme.tabColor),
-            contentAlignment = Alignment.Center
         ) {
             IconButton(onClick = { expanded = !expanded }) {
-                Icon(painter = painterResource(R.drawable.baseline_more_vert_24),
+                Icon(
+                    painter = painterResource(R.drawable.baseline_more_vert_24),
                     contentDescription = "more options",
-                    tint = theme.textColor)
+                    tint = theme.textColor
+                )
             }
+
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
@@ -515,4 +441,5 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 }

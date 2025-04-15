@@ -111,7 +111,7 @@ object PlayManager {
             history.add(currentlyPlaying)
         }
 
-        if (!queue.isEmpty()) {
+        if (queue.isNotEmpty()) {
             currentlyPlaying = queue.removeAt(0)
         }
 
@@ -119,8 +119,12 @@ object PlayManager {
     }
 
     fun previousQueue(context: Context) {
-        queue.add(0, currentlyPlaying)
-        currentlyPlaying = history.removeAt(history.lastIndex)
+        if (::currentlyPlaying.isInitialized) {
+            queue.add(0, currentlyPlaying)
+        }
+        if (history.isNotEmpty()) {
+            currentlyPlaying = history.removeAt(history.lastIndex)
+        }
         directPlay(currentlyPlaying, 0, context)
     }
 

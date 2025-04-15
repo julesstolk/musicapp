@@ -1,12 +1,13 @@
 package com.blyss2idk.musicapp.data
 
 import android.util.Log
+import com.blyss2idk.musicapp.R
 
 data class Option(
     val title: String,
     val type: OptionType,
     var currentSetting: Int = 0,
-    val icon: Int? = null,
+    val icon: Int = R.drawable.baseline_question_mark_24,
     val minMax: Pair<Int, Int>? = null,
     val options: List<String>? = null,
     val onChange: () -> Unit = { doNothing() }
