@@ -1,8 +1,11 @@
 package com.blyss.musicapp.tools
 
+import android.content.ContentUris
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
+import android.net.Uri
+import android.provider.MediaStore
 import com.blyss.musicapp.data.Track
 
 
@@ -30,7 +33,6 @@ object PlayManager {
     private lateinit var currentlyPlaying: Track
     private var queue = ArrayList<Track>()
     private var history = ArrayList<Track>()
-
 
     fun getQueue(): ArrayList<Track> {
         return queue
@@ -73,6 +75,9 @@ object PlayManager {
 
     // Only changes mediaPlaying of all logic
     private fun directPlay(track: Track, position: Int, context: Context) {
+        if (!track.validUri) {
+            nextQueue(context)
+        }
         if (mediaPlaying) {
             mediaPlaying = false
             mediaplayers[currentPlayer].pause()
