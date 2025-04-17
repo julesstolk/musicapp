@@ -85,8 +85,8 @@ object PlayManager {
 
         val player = mediaplayers[currentPlayer]
 
-        player.reset() // Always reset
-        player.setDataSource(context, track.uri) // Always set data source after reset
+        player.reset()
+        player.setDataSource(context, track.uri)
 
         currentlyPlaying = track
 

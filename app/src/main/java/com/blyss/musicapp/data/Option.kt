@@ -1,6 +1,5 @@
 package com.blyss.musicapp.data
 
-import android.util.Log
 import com.blyss.musicapp.R
 
 data class Option(
@@ -10,7 +9,7 @@ data class Option(
     val icon: Int = R.drawable.baseline_question_mark_24,
     val minMax: Pair<Int, Int>? = null,
     val options: List<String>? = null,
-    val onChange: () -> Unit = { doNothing() }
+    val onChange: () -> Unit = { null }
 ) {
     
     init {
@@ -36,9 +35,4 @@ data class Option(
             currentSetting = 0
         }
     }
-}
-
-fun doNothing(){
-    // do nothing
-    Log.w("OPTION", "doNothing() called, should not happen")
 }

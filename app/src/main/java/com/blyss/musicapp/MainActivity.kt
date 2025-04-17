@@ -11,19 +11,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -38,19 +33,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.blyss.musicapp.constant.DefaultOptions
 import com.blyss.musicapp.constant.DefaultThemes
 import com.blyss.musicapp.data.TabType
+import com.blyss.musicapp.data.Theme
 import com.blyss.musicapp.data.Track
 import com.blyss.musicapp.tools.PlayManager
 import com.blyss.musicapp.tools.SearchManager
+import com.blyss.musicapp.ui.PlaylistDialogFactory
+import com.blyss.musicapp.ui.StandardTabFactory
 import com.blyss.musicapp.ui.theme.MusicappMain
 import kotlinx.coroutines.delay
 
@@ -106,8 +101,23 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // todo replace this shit with a data class or something
+    // i cba idk anymore
+    private fun setup(onOpenPlaylistCreation: () -> Unit, theme: Theme): Triple<DefaultOptions, StandardTabFactory, PlaylistDialogFactory> {
+        val defaultOptions = DefaultOptions(onOpenPlaylistCreation)
+        val standardTabFactory = StandardTabFactory(theme)
+        val playlistDialogFactory = PlaylistDialogFactory(standardTabFactory, defaultOptions, theme)
+        return Triple(defaultOptions, standardTabFactory, playlistDialogFactory)
+    }
+
     @Composable
     fun DefaultScreen(context: Context) {
+        var showPlaylistDialog by remember {
+            mutableStateOf(false)
+        }
+
+        val (defaultOptions, standardTabFactory, playlistDialogFactory) = setup({showPlaylistDialog = true}, theme)
+
         val moreIcon = R.drawable.baseline_more_vert_24
         var query by remember {
             mutableStateOf("")
@@ -181,9 +191,7 @@ class MainActivity : ComponentActivity() {
                         IconButton(
                             modifier = Modifier
                                 .weight(1f),
-                            onClick = {
-                                todo()
-                            }
+                            onClick = {null}
                         ) {
                             Image(
                                 painter = painterResource(id = moreIcon),
@@ -193,7 +201,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                // Spacer for better design
+                // Spacer for better designa
                 item {
                     Spacer(modifier = Modifier.height(theme.searchButtonTextSpacing.dp))
                 }
@@ -204,7 +212,7 @@ class MainActivity : ComponentActivity() {
                 // Hardcoded on TabType.SONG CHANGE LATER
                 if (query == "") {
                     items(theme.tabsVertical) { index ->
-                        StandardTab(TabType.SONG,
+                        standardTabFactory.StandardTab(TabType.SONG,
                             index.toString(),
                             "second text",
                             "3:01")
@@ -217,7 +225,7 @@ class MainActivity : ComponentActivity() {
                     val searchResult = SearchManager.search(applicationContext, query)
                     if (searchResult.isEmpty()) {
                         item {
-                            StandardTab(TabType.EXCEPTION, "no results.")
+                            standardTabFactory.StandardTab(TabType.EXCEPTION, "no results.")
                         }
                     }
                     items(searchResult.size) { index ->
@@ -225,7 +233,7 @@ class MainActivity : ComponentActivity() {
                         if (result.useMetadata) {
                             // will probably stay irrelevant idk
                         } else {
-                            StandardTab(
+                            standardTabFactory.StandardTab(
                                 TabType.SONG,
                                 result.fileName,
                                 //result.fileName.slice(0..(max(5, min(result.fileName.length - 1, 34 - 5*showIconButtons)))),
@@ -236,7 +244,7 @@ class MainActivity : ComponentActivity() {
                                     startedPlaying = true
                                     songPlaying = true
                                 },
-                                buttons = listOf { SongButtonsGenerator(result, showIconButtons) }
+                                buttons = listOf { SongButtonsGenerator(defaultOptions, result, showIconButtons) }
                             )
                         }
                     }
@@ -248,7 +256,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .align(Alignment.BottomEnd),
                 ) {
-                    StandardTab(
+                    standardTabFactory.StandardTab(
                         TabType.CURRENT_SONG,
                         mainText = PlayManager.currentTrackPlaying()!!.fileName,
                         secondaryText = secondsSong,
@@ -292,91 +300,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun todo() {}
-
-    @Composable
-    fun StandardTab(
-        tabType: TabType,
-        mainText: String,
-        secondaryText: String = "",
-        tertiaryText: String = "",
-        onClick: () -> Unit = {},
-        icon: Int? = null,
-        background: Int? = null,
-        buttons: List<@Composable (() -> Unit)>? = null,
-    ) {
-        var useIcon = tabType.icon()
-        if (icon != null) {
-            useIcon = icon
-        }
-
-        Row(
-            modifier = Modifier
-                .height(theme.tabSizeVertical.dp)
-                .fillMaxWidth()
-                .padding(horizontal = theme.tabPadding.dp, vertical = theme.tabPadding.dp)
-                .clip(RoundedCornerShape(theme.tabRoundedCornerShape.dp))
-                .background(theme.tabColor)
-                .alpha(theme.tabAlpha),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(useIcon),
-                contentDescription = tabType.toString(),
-                modifier = Modifier
-                    .height((theme.tabSizeVertical * 0.6).dp)
-                    .aspectRatio(1F)
-                    .padding(end = 8.dp),
-                tint = theme.textColor
-            )
-
-            // Middle: Texts (clickable area)
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { onClick() }
-            ) {
-                Text(
-                    text = mainText,
-                    fontSize = theme.textSize.sp,
-                    color = theme.textColor,
-                    maxLines = 1
-                )
-                Text(
-                    text = secondaryText,
-                    color = theme.textColor,
-                    maxLines = 1
-                )
-            }
-
-            // Right: Tertiary text
-            if (tertiaryText.isNotBlank()) {
-                Text(
-                    text = tertiaryText,
-                    color = theme.textColor,
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    maxLines = 1
-                )
-            }
-
-            // Buttons
-            if (buttons != null) {
-                for (button in buttons) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            //.weight(1f)
-                            .aspectRatio(1f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        button()
-                    }
-                }
-            }
-        }
-    }
-
-
     fun getStringFromTime(d: Int): String {
         val durationMinutes = d / 60
         var durationSeconds: String = (d % 60).toString()
@@ -387,8 +310,8 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun SongButtonsGenerator(track: Track, optionsWithIcon: Int = 0) {
-        val allOptions = DefaultOptions.getAllSongOptions(track)
+    fun SongButtonsGenerator(defaultOptions: DefaultOptions, track: Track, optionsWithIcon: Int = 0) {
+        val allOptions = defaultOptions.getAllSongOptions(track)
         var expanded by remember { mutableStateOf(false) }
 
         Row(
@@ -439,5 +362,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
 }
