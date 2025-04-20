@@ -27,6 +27,7 @@ import com.blyss.musicapp.data.Theme
 class StandardTabFactory(
     private val theme: Theme
 ) {
+    val buttonSize = 36.dp
 
     @Composable
     fun StandardTab(
@@ -98,7 +99,7 @@ class StandardTabFactory(
                 for (button in buttons) {
                     Box(
                         modifier = Modifier
-                            .fillMaxHeight()
+                            .height(buttonSize)
                             //.weight(1f)
                             .aspectRatio(1f),
                         contentAlignment = Alignment.Center

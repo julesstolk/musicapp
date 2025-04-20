@@ -6,6 +6,9 @@ import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
 import android.provider.MediaStore
+import com.blyss.musicapp.data.Playable
+import com.blyss.musicapp.data.Playlist
+import com.blyss.musicapp.data.TabType
 import com.blyss.musicapp.data.Track
 
 
@@ -133,8 +136,15 @@ object PlayManager {
         directPlay(currentlyPlaying, 0, context)
     }
 
+
     fun startPlay(track: Track, context: Context) {
         directPlay(track, 0, context)
+    }
+
+    fun startPlay(playlist: Playlist, context: Context) {
+        val tracks = playlist.getTracks()
+        startPlay(tracks[0], context)
+        queue.addAll(tracks.slice(1..tracks.size))
     }
 
     fun togglePlay(context: Context) {

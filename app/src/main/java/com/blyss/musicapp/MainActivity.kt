@@ -39,12 +39,16 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.blyss.musicapp.constant.DefaultOptions
 import com.blyss.musicapp.constant.DefaultThemes
+import com.blyss.musicapp.data.Playable
+import com.blyss.musicapp.data.Playlist
 import com.blyss.musicapp.data.TabType
 import com.blyss.musicapp.data.Theme
 import com.blyss.musicapp.data.Track
 import com.blyss.musicapp.tools.PlayManager
 import com.blyss.musicapp.tools.SearchManager
+import com.blyss.musicapp.tools.Utils
 import com.blyss.musicapp.ui.PlaylistDialogFactory
+import com.blyss.musicapp.ui.PlaylistDropdownFactory
 import com.blyss.musicapp.ui.StandardTabFactory
 import com.blyss.musicapp.ui.theme.MusicappMain
 import kotlinx.coroutines.delay
@@ -52,7 +56,7 @@ import kotlinx.coroutines.delay
 class MainActivity : ComponentActivity() {
 
     private val theme = DefaultThemes.darkTheme2
-    val showIconButtons = 0
+    val showIconButtons = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,9 +108,9 @@ class MainActivity : ComponentActivity() {
     // todo replace this shit with a data class or something
     // i cba idk anymore
     private fun setup(onOpenPlaylistCreation: () -> Unit, theme: Theme): Triple<DefaultOptions, StandardTabFactory, PlaylistDialogFactory> {
-        val defaultOptions = DefaultOptions(onOpenPlaylistCreation)
+        val defaultOptions = DefaultOptions()
         val standardTabFactory = StandardTabFactory(theme)
-        val playlistDialogFactory = PlaylistDialogFactory(standardTabFactory, defaultOptions, theme)
+        val playlistDialogFactory = PlaylistDialogFactory(standardTabFactory, theme)
         return Triple(defaultOptions, standardTabFactory, playlistDialogFactory)
     }
 
@@ -116,7 +120,9 @@ class MainActivity : ComponentActivity() {
             mutableStateOf(false)
         }
 
+        // make this better
         val (defaultOptions, standardTabFactory, playlistDialogFactory) = setup({showPlaylistDialog = true}, theme)
+        val playlistDropdownFactory = PlaylistDropdownFactory()
 
         val moreIcon = R.drawable.baseline_more_vert_24
         var query by remember {
@@ -126,9 +132,15 @@ class MainActivity : ComponentActivity() {
             mutableStateOf(false)
         }
         var secondsSong by remember {
-            mutableStateOf(getStringFromTime(PlayManager.getCurrentTimeInSeconds()))
+            mutableStateOf(Utils.getStringFromTime(PlayManager.getCurrentTimeInSeconds()))
         }
         var startedPlaying by remember{
+            mutableStateOf(false)
+        }
+        var moreExpanded by remember {
+            mutableStateOf(false)
+        }
+        var showDialog by remember {
             mutableStateOf(false)
         }
 
@@ -137,7 +149,7 @@ class MainActivity : ComponentActivity() {
                 while (true) {
                     delay(1000L)
                     val d = PlayManager.getCurrentTimeInSeconds()
-                    secondsSong = getStringFromTime(d)
+                    secondsSong = Utils.getStringFromTime(d)
                 }
             }
         }
@@ -191,12 +203,13 @@ class MainActivity : ComponentActivity() {
                         IconButton(
                             modifier = Modifier
                                 .weight(1f),
-                            onClick = {null}
+                            onClick = { moreExpanded = true }
                         ) {
                             Image(
                                 painter = painterResource(id = moreIcon),
                                 contentDescription = "more"
                             )
+                            MoreOptionsDropdown(playlistDialogFactory, defaultOptions, moreExpanded, { moreExpanded = false }, showDialog, { showDialog = true }, {showDialog = false})
                         }
                     }
                 }
@@ -222,7 +235,7 @@ class MainActivity : ComponentActivity() {
                 // Search results
                 // Show only if there is a query
                 if (query != "") {
-                    val searchResult = SearchManager.search(applicationContext, query)
+                    val searchResult = SearchManager.searchFilesAndPlaylists(applicationContext, query)
                     if (searchResult.isEmpty()) {
                         item {
                             standardTabFactory.StandardTab(TabType.EXCEPTION, "no results.")
@@ -230,23 +243,19 @@ class MainActivity : ComponentActivity() {
                     }
                     items(searchResult.size) { index ->
                         val result = searchResult[index]
-                        if (result.useMetadata) {
-                            // will probably stay irrelevant idk
-                        } else {
-                            standardTabFactory.StandardTab(
-                                TabType.SONG,
-                                result.fileName,
-                                //result.fileName.slice(0..(max(5, min(result.fileName.length - 1, 34 - 5*showIconButtons)))),
-                                result.durationString,
-                                "",
-                                onClick = {
-                                    PlayManager.startPlay(result, applicationContext)
-                                    startedPlaying = true
-                                    songPlaying = true
-                                },
-                                buttons = listOf { SongButtonsGenerator(defaultOptions, result, showIconButtons) }
-                            )
-                        }
+
+                        standardTabFactory.StandardTab(
+                            result.type,
+                            result.title,
+                            //result.fileName.slice(0..(max(5, min(result.fileName.length - 1, 34 - 5*showIconButtons)))),
+                            result.length,
+                            "",
+                            onClick = {
+                                result.play(applicationContext)
+                                startedPlaying = true
+                                songPlaying = true
+                            },
+                            buttons = songButtonsGenerator(defaultOptions, result, showIconButtons, playlistDropdownFactory))
                     }
                 }
             }
@@ -300,44 +309,30 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun getStringFromTime(d: Int): String {
-        val durationMinutes = d / 60
-        var durationSeconds: String = (d % 60).toString()
-        if (durationSeconds.length < 2) {
-            durationSeconds = "0$durationSeconds"
-        }
-        return "$durationMinutes:$durationSeconds"
-    }
-
     @Composable
-    fun SongButtonsGenerator(defaultOptions: DefaultOptions, track: Track, optionsWithIcon: Int = 0) {
-        val allOptions = defaultOptions.getAllSongOptions(track)
-        var expanded by remember { mutableStateOf(false) }
+    fun songButtonsGenerator(defaultOptions: DefaultOptions, track: Track, optionsWithIcon: Int = 0, playlistDropdownFactory: PlaylistDropdownFactory): List<@Composable () -> Unit> {
+        var expanded by remember {mutableStateOf(false)}
+        var expanded2 by remember {mutableStateOf(false)}
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            for (i in 0 until optionsWithIcon) {
-                val option = allOptions[i]
-                Box (
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-                    IconButton(onClick = { option.onChange() }) {
-                        Icon(
-                            painter = painterResource(option.icon),
-                            contentDescription = option.title,
-                            tint = theme.textColor
-                        )
-                    }
+        val allOptions = defaultOptions.getAllSongOptions(track) { expanded2 = true }
+
+        val output = mutableListOf<@Composable () -> Unit>()
+
+        for (i in 0 until optionsWithIcon) {
+            val option = allOptions[i]
+            output.add({
+                IconButton(onClick = { option.onChange() }) {
+                    Icon(
+                        painter = painterResource(option.icon),
+                        contentDescription = option.title,
+                        tint = theme.textColor
+                    )
                 }
             }
+            )
         }
 
-        Box (
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
+        output.add({
             IconButton(onClick = { expanded = !expanded }) {
                 Icon(
                     painter = painterResource(R.drawable.baseline_more_vert_24),
@@ -359,7 +354,42 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 }
+                playlistDropdownFactory.PlaylistDropdown(track, expanded2) { expanded2 = false }
             }
         }
+        )
+
+        return output
+    }
+
+    @Composable
+    fun songButtonsGenerator(defaultOptions: DefaultOptions, playable: Playable, optionsWithIcon: Int = 0, playlistDropdownFactory: PlaylistDropdownFactory): List<@Composable () -> Unit> {
+        when (playable) {
+            is Track -> return songButtonsGenerator(defaultOptions, playable, optionsWithIcon, playlistDropdownFactory)
+            is Playlist -> null
+        }
+        return mutableListOf()
+    }
+
+    @Composable
+    fun MoreOptionsDropdown(playlistDialogFactory: PlaylistDialogFactory, defaultOptions: DefaultOptions, expanded: Boolean, onDismiss: () -> Unit, showDialog: Boolean, onShow: () -> Unit, onDismiss2: () -> Unit) {
+        val allMoreOptions = defaultOptions.getAllMoreOptions(onShow)
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = onDismiss
+        ) {
+            for (option in allMoreOptions) {
+                DropdownMenuItem(
+                    text = { Text(option.title) },
+                    onClick = {
+                        option.onChange()
+                        onDismiss()
+                    }
+                )
+            }
+        }
+
+        playlistDialogFactory.PlaylistDialog(showDialog) { onDismiss2() }
     }
 }

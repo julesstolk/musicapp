@@ -5,10 +5,11 @@ import android.database.Cursor
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import com.blyss.musicapp.data.Playable
+import com.blyss.musicapp.data.Playlist
 import com.blyss.musicapp.data.Track
 
 object SearchManager {
-
     private val projection = arrayOf(
         MediaStore.Audio.Media._ID,            // ID of the audio file
         MediaStore.Audio.Media.DISPLAY_NAME,   // Name of the audio file
@@ -30,12 +31,12 @@ object SearchManager {
         val duration = cursor.getLong(cursor.getColumnIndexOrThrow(projection[4]))
         val filePath = cursor.getString(cursor.getColumnIndexOrThrow(projection[5]))
 
-        val track = Track(id, displayName, title, artist, duration, filePath, id)
+        val track = Track(fileId = id, fileName = displayName, title = title, artist = artist, duration = duration, filePath = filePath, id = id)
 
         return track
     }
 
-    fun search(context: Context, query: String): MutableList<Track> {
+    fun searchFiles(context: Context, query: String): MutableList<Track> {
 
         val outputTracks = mutableListOf<Track>()
 
@@ -61,5 +62,31 @@ object SearchManager {
         }
 
         return outputTracks
+    }
+
+    fun searchPlaylist(query: String): List<Playlist> {
+        // todo implement search engine or something maybe idk
+        val output = mutableListOf<Playlist>()
+        val playlists = PlaylistManager.getPlaylists()
+
+        for (playlist in playlists) {
+            if (playlist.title.lowercase().contains(query)) {
+                output.add(playlist)
+            }
+        }
+        output.sortBy { it.title }
+
+        return output
+    }
+
+    fun searchFilesAndPlaylists(context: Context, query: String): List<Playable> {
+        val playlists = searchPlaylist(query)
+        val files = searchFiles(context, query)
+
+        val merged = mutableListOf<Playable>()
+        merged.addAll(playlists)
+        merged.addAll(files)
+
+        return merged
     }
 }
