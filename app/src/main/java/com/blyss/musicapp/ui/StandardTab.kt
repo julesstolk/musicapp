@@ -25,7 +25,7 @@ import com.blyss.musicapp.data.TabType
 import com.blyss.musicapp.data.Theme
 
 object StandardTab {
-    val buttonSize = 36.dp
+    val buttonSize = 48.dp
 
     lateinit var theme: Theme
 

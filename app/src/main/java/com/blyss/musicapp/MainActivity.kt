@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.text.style.TabStopSpan
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,6 +14,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -60,6 +60,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        PlayManager.initPlayer(applicationContext)
 
         setContent {
             MusicappMain {
@@ -184,22 +186,31 @@ class MainActivity : ComponentActivity() {
                     ) {
                         TextField(
                             modifier = Modifier
-                                .weight(6f),
+                                .weight(1f),
                             value = query,
                             onValueChange = { text ->
                                 query = text
                             }
                         )
-                        IconButton(
+
+                        // Spacer(modifier = Modifier.weight(1f))
+
+                        Box(
                             modifier = Modifier
-                                .weight(1f),
-                            onClick = { moreExpanded = true }
+                                .height(StandardTab.buttonSize)
+                                .aspectRatio(1f)
                         ) {
-                            Image(
-                                painter = painterResource(id = moreIcon),
-                                contentDescription = "more"
-                            )
-                            MoreOptionsDropdown(moreExpanded, { moreExpanded = false }, showDialog, { showDialog = true }, {showDialog = false})
+                            IconButton(
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                onClick = { moreExpanded = true }
+                            ) {
+                                Image(
+                                    painter = painterResource(id = moreIcon),
+                                    contentDescription = "more"
+                                )
+                                MoreOptionsDropdown(moreExpanded, { moreExpanded = false }, showDialog, { showDialog = true }, {showDialog = false})
+                            }
                         }
                     }
                 }
@@ -288,7 +299,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }, {
                             IconButton(onClick = {
-                                PlayManager.togglePlay(context)
+                                PlayManager.togglePlay()
                                 songPlaying = !songPlaying
                             }) {
                                 if (songPlaying) {

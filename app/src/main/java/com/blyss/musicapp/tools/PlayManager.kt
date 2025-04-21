@@ -1,14 +1,10 @@
 package com.blyss.musicapp.tools
 
-import android.content.ContentUris
 import android.content.Context
-import android.media.AudioAttributes
-import android.media.MediaPlayer
-import android.net.Uri
-import android.provider.MediaStore
-import com.blyss.musicapp.data.Playable
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import com.blyss.musicapp.data.Playlist
-import com.blyss.musicapp.data.TabType
 import com.blyss.musicapp.data.Track
 
 
@@ -16,26 +12,28 @@ import com.blyss.musicapp.data.Track
 object PlayManager {
 
     // all time is in milliseconds
-    //    private var crossfade = 0
+    private lateinit var exoPlayer: ExoPlayer
     private var mediaPlaying: Boolean = false
-    private var offset = 0
-
-    private var totalPlayers = 1
-    private var currentPlayer = 0
-    private val mediaplayers = Array(totalPlayers) {
-        MediaPlayer().apply {
-            setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .build()
-            )
-        }
-    }
+    private var offset: Long = 0L
 
     private lateinit var currentlyPlaying: Track
     private var queue = ArrayList<Track>()
     private var history = ArrayList<Track>()
+
+    fun initPlayer(context: Context) {
+        exoPlayer = ExoPlayer.Builder(context).build()
+        exoPlayer.addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) {
+                    nextQueue(context)
+                }
+            }
+        })
+    }
+
+    fun release() {
+        exoPlayer.release()
+    }
 
     fun getQueue(): ArrayList<Track> {
         return queue
@@ -69,7 +67,7 @@ object PlayManager {
     }
 
     fun getCurrentTimeInSeconds(): Int {
-        return mediaplayers[currentPlayer].currentPosition / 1000
+        return (exoPlayer.currentPosition / 1000).toInt()
     }
 
 //    fun setCrossfade(crossfade_: Int) {
@@ -77,33 +75,25 @@ object PlayManager {
 //    }
 
     // Only changes mediaPlaying of all logic
-    private fun directPlay(track: Track, position: Int, context: Context) {
+    private fun directPlay(track: Track, position: Long, context: Context) {
         if (!track.validUri) {
             nextQueue(context)
+            return
         }
-        if (mediaPlaying) {
+
+        if (::currentlyPlaying.isInitialized) {
             mediaPlaying = false
-            mediaplayers[currentPlayer].pause()
+            exoPlayer.pause()
         }
-
-        val player = mediaplayers[currentPlayer]
-
-        player.reset()
-        player.setDataSource(context, track.uri)
 
         currentlyPlaying = track
 
-        player.setOnPreparedListener {
-            player.seekTo(position)
-            player.start()
-            mediaPlaying = true
-        }
-
-        player.setOnCompletionListener {
-            nextQueue(context)
-        }
-
-        player.prepareAsync()
+        val mediaItem = MediaItem.fromUri(track.uri)
+        exoPlayer.setMediaItem(mediaItem)
+        exoPlayer.prepare()
+        exoPlayer.seekTo(position)
+        exoPlayer.play()
+        mediaPlaying = true
     }
 
     // Function is called when track ends:
@@ -130,12 +120,13 @@ object PlayManager {
         if (::currentlyPlaying.isInitialized) {
             queue.add(0, currentlyPlaying)
         }
+
         if (history.isNotEmpty()) {
-            currentlyPlaying = history.removeAt(history.lastIndex)
+            currentlyPlaying = history.removeAt(history.size - 1)
         }
+
         directPlay(currentlyPlaying, 0, context)
     }
-
 
     fun startPlay(track: Track, context: Context) {
         directPlay(track, 0, context)
@@ -145,24 +136,24 @@ object PlayManager {
         if (playlist.size() == 0) {
             return
         }
+
         val tracks = playlist.getTracks()
         startPlay(tracks[0], context)
+
         if (playlist.getTracks().size > 1) {
-            queue.addAll(tracks.slice(1..tracks.size-1))
+            queue.addAll(tracks.subList(1, tracks.size))
         }
     }
 
-    fun togglePlay(context: Context) {
+    fun togglePlay() {
         if (mediaPlaying) {
             // pause mediaplayer
-            offset = mediaplayers[currentPlayer].currentPosition
-            mediaplayers[currentPlayer].pause()
+            offset = exoPlayer.currentPosition
+            exoPlayer.pause()
             mediaPlaying = false
         } else {
-            mediaplayers[currentPlayer].apply {
-                seekTo(offset)
-                start()
-            }
+            exoPlayer.seekTo(offset)
+            exoPlayer.play()
             mediaPlaying = true
         }
     }
