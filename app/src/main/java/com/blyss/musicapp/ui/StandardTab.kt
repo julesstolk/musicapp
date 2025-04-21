@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,10 +20,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.blyss.musicapp.data.Playable
 import com.blyss.musicapp.data.TabType
 import com.blyss.musicapp.data.Theme
 
-object StandardTabFactory {
+object StandardTab {
     val buttonSize = 36.dp
 
     lateinit var theme: Theme
@@ -33,8 +33,8 @@ object StandardTabFactory {
     fun StandardTab(
         tabType: TabType,
         mainText: String,
-        secondaryText: String = "",
-        tertiaryText: String = "",
+        secondText: String = "",
+        thirdText: String = "",
         onClick: () -> Unit = {},
         icon: Int? = null,
         background: Int? = null,
@@ -78,16 +78,16 @@ object StandardTabFactory {
                     maxLines = 1
                 )
                 Text(
-                    text = secondaryText,
+                    text = secondText,
                     color = theme.textColor,
                     maxLines = 1
                 )
             }
 
             // Right: Tertiary text
-            if (tertiaryText.isNotBlank()) {
+            if (thirdText.isNotBlank()) {
                 Text(
-                    text = tertiaryText,
+                    text = thirdText,
                     color = theme.textColor,
                     modifier = Modifier.padding(horizontal = 8.dp),
                     maxLines = 1
@@ -109,5 +109,34 @@ object StandardTabFactory {
                 }
             }
         }
+    }
+
+    @Composable
+    fun StandardTab(
+        playable: Playable,
+        onClick: () -> Unit,
+        icon: Int? = null,
+        background: Int? = null,
+        buttons: List<@Composable (() -> Unit)>? = null,
+    ) {
+        StandardTab(
+            tabType = playable.type,
+            mainText = playable.title,
+            secondText = playable.length,
+            thirdText = "",
+            onClick = onClick,
+            buttons = buttons
+            )
+    }
+
+    @Composable
+    fun ErrorTab(
+        error: String
+    ) {
+        StandardTab(
+            tabType = TabType.EXCEPTION,
+            mainText = "error",
+            secondText = error
+        )
     }
 }

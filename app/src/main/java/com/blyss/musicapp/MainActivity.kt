@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.text.style.TabStopSpan
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -39,17 +40,15 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.blyss.musicapp.constant.DefaultOptions
 import com.blyss.musicapp.constant.DefaultThemes
-import com.blyss.musicapp.data.Playable
-import com.blyss.musicapp.data.Playlist
 import com.blyss.musicapp.data.TabType
 import com.blyss.musicapp.data.Theme
-import com.blyss.musicapp.data.Track
 import com.blyss.musicapp.tools.PlayManager
+import com.blyss.musicapp.tools.RecentManager
 import com.blyss.musicapp.tools.SearchManager
 import com.blyss.musicapp.tools.Utils
-import com.blyss.musicapp.ui.PlaylistDialogFactory
-import com.blyss.musicapp.ui.PlaylistDropdownFactory
-import com.blyss.musicapp.ui.StandardTabFactory
+import com.blyss.musicapp.ui.PlayableButtons
+import com.blyss.musicapp.ui.PlaylistDialog
+import com.blyss.musicapp.ui.StandardTab
 import com.blyss.musicapp.ui.theme.MusicappMain
 import kotlinx.coroutines.delay
 
@@ -106,8 +105,9 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setup(theme: Theme) {
-        StandardTabFactory.theme = theme
-        PlaylistDialogFactory.theme = theme
+        StandardTab.theme = theme
+        PlaylistDialog.theme = theme
+        PlayableButtons.theme = theme
     }
 
     @Composable
@@ -204,7 +204,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                // Spacer for better designa
+                // Spacer for better design
                 item {
                     Spacer(modifier = Modifier.height(theme.searchButtonTextSpacing.dp))
                 }
@@ -214,12 +214,31 @@ class MainActivity : ComponentActivity() {
                 // Implement functions !!!
                 // Hardcoded on TabType.SONG CHANGE LATER
                 if (query == "") {
-                    items(theme.tabsVertical) { index ->
-                        StandardTabFactory.StandardTab(TabType.SONG,
-                            index.toString(),
-                            "second text",
-                            "3:01")
+                    if (RecentManager.getRecents().isEmpty()) {
+                        item {
+                            StandardTab.ErrorTab("no recents found.")
+                        }
                     }
+                    items(RecentManager.getRecents().size) { index ->
+                        var playable = RecentManager.getRecents()[index]
+                        StandardTab.StandardTab(
+                            playable = playable,
+                            onClick = {
+                                playable.play(applicationContext)
+                                startedPlaying = true
+                                songPlaying = true
+                                RecentManager.addRecent(playable)
+                            },
+                            buttons = PlayableButtons.playableButtons(playable, showIconButtons)
+                        )
+                    }
+
+//                    items(theme.tabsVertical) { index ->
+//                        StandardTab.StandardTab(TabType.SONG,
+//                            index.toString(),
+//                            "second text",
+//                            "3:01")
+//                    }
                 }
 
                 // Search results
@@ -228,38 +247,38 @@ class MainActivity : ComponentActivity() {
                     val searchResult = SearchManager.searchFilesAndPlaylists(applicationContext, query)
                     if (searchResult.isEmpty()) {
                         item {
-                            StandardTabFactory.StandardTab(TabType.EXCEPTION, "no results.")
+                            StandardTab.StandardTab(TabType.EXCEPTION, "no results.")
                         }
                     }
                     items(searchResult.size) { index ->
                         val result = searchResult[index]
 
-                        StandardTabFactory.StandardTab(
-                            result.type,
-                            result.title,
-                            //result.fileName.slice(0..(max(5, min(result.fileName.length - 1, 34 - 5*showIconButtons)))),
-                            result.length,
-                            "",
+                        StandardTab.StandardTab(
+                            playable = result,
                             onClick = {
                                 result.play(applicationContext)
                                 startedPlaying = true
                                 songPlaying = true
+                                RecentManager.addRecent(result)
                             },
-                            buttons = songButtonsGenerator(result, showIconButtons))
+                            buttons = PlayableButtons.playableButtons(result, showIconButtons))
                     }
                 }
             }
 
+
+            // Current song playing
+            // With buttons, on bottom of screen
             if (startedPlaying) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd),
                 ) {
-                    StandardTabFactory.StandardTab(
+                    StandardTab.StandardTab(
                         TabType.CURRENT_SONG,
                         mainText = PlayManager.currentTrackPlaying()!!.fileName,
-                        secondaryText = secondsSong,
-                        tertiaryText = "",
+                        secondText = secondsSong,
+                        thirdText = "",
                         onClick = {null},
                         buttons = listOf({
                             IconButton(onClick = {PlayManager.previousQueue(context)}) {
@@ -300,68 +319,6 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun songButtonsGenerator(track: Track, optionsWithIcon: Int = 0): List<@Composable () -> Unit> {
-        var expanded by remember {mutableStateOf(false)}
-        var expanded2 by remember {mutableStateOf(false)}
-
-        val allOptions = DefaultOptions.getAllSongOptions(track) { expanded2 = true }
-
-        val output = mutableListOf<@Composable () -> Unit>()
-
-        for (i in 0 until optionsWithIcon) {
-            val option = allOptions[i]
-            output.add({
-                IconButton(onClick = { option.onChange() }) {
-                    Icon(
-                        painter = painterResource(option.icon),
-                        contentDescription = option.title,
-                        tint = theme.textColor
-                    )
-                }
-            }
-            )
-        }
-
-        output.add({
-            IconButton(onClick = { expanded = !expanded }) {
-                Icon(
-                    painter = painterResource(R.drawable.baseline_more_vert_24),
-                    contentDescription = "more options",
-                    tint = theme.textColor
-                )
-            }
-
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                for (option in allOptions) {
-                    DropdownMenuItem(
-                        text = { Text(option.title) },
-                        onClick = {
-                            option.onChange()
-                            expanded = false
-                        }
-                    )
-                }
-                PlaylistDropdownFactory.PlaylistDropdown(track, expanded2) { expanded2 = false }
-            }
-        }
-        )
-
-        return output
-    }
-
-    @Composable
-    fun songButtonsGenerator(playable: Playable, optionsWithIcon: Int = 0): List<@Composable () -> Unit> {
-        when (playable) {
-            is Track -> return songButtonsGenerator(playable, optionsWithIcon)
-            is Playlist -> null
-        }
-        return mutableListOf()
-    }
-
-    @Composable
     fun MoreOptionsDropdown(expanded: Boolean, onDismiss: () -> Unit, showDialog: Boolean, onShow: () -> Unit, onDismiss2: () -> Unit) {
         val allMoreOptions = DefaultOptions.getAllMoreOptions(onShow)
 
@@ -380,6 +337,6 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        PlaylistDialogFactory.PlaylistDialog(showDialog) { onDismiss2() }
+        PlaylistDialog.PlaylistDialog(showDialog) { onDismiss2() }
     }
 }

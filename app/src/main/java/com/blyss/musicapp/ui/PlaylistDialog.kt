@@ -22,7 +22,7 @@ import com.blyss.musicapp.R
 import com.blyss.musicapp.data.Theme
 import com.blyss.musicapp.tools.PlaylistManager
 
-object PlaylistDialogFactory {
+object PlaylistDialog {
 
     lateinit var theme: Theme
 

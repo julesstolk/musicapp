@@ -10,7 +10,7 @@ data class Playlist(
     val cover: Int? = null,
     private val tracks: MutableList<Track> = mutableListOf(),
     val ordered: Boolean = false,
-    override val length: String = tracks.size.toString(),
+    override var length: String = tracks.size.toString() + " tracks",
     override val thirdText: String = "",
     override val type: TabType = TabType.PLAYLIST
 ) : Playable {
@@ -24,12 +24,18 @@ data class Playlist(
         return tracks
     }
 
-    fun addTrack(track: Track) {
-        tracks.add(track)
+    fun size(): Int {
+        return tracks.size
     }
 
-    fun copyPlaylist(title: String): Playlist {
-        return Playlist(title, cover, tracks = tracks.toMutableList(), ordered)
+    fun addTrack(track: Track) {
+        tracks.add(track)
+        length = tracks.size.toString() + " tracks"
+    }
+
+    fun removeTrack(track: Track) {
+        tracks.remove(track)
+        length = tracks.size.toString() + " tracks"
     }
 
     override fun play(context: Context) {

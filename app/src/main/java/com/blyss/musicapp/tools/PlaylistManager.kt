@@ -15,6 +15,12 @@ object PlaylistManager {
         return playlist
     }
 
+    fun copyPlaylist(playlist: Playlist, title: String): Playlist {
+        val newPlaylist = Playlist(title, playlist.cover, playlist.getTracks().toMutableList(), playlist.ordered)
+        playlists.add(newPlaylist)
+        return newPlaylist
+    }
+
     fun savePlaylists(): Boolean {
         // save playlists to json
         // use dao

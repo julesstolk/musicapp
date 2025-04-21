@@ -142,9 +142,14 @@ object PlayManager {
     }
 
     fun startPlay(playlist: Playlist, context: Context) {
+        if (playlist.size() == 0) {
+            return
+        }
         val tracks = playlist.getTracks()
         startPlay(tracks[0], context)
-        queue.addAll(tracks.slice(1..tracks.size))
+        if (playlist.getTracks().size > 1) {
+            queue.addAll(tracks.slice(1..tracks.size-1))
+        }
     }
 
     fun togglePlay(context: Context) {
