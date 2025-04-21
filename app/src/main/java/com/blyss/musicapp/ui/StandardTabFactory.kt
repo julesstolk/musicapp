@@ -24,10 +24,10 @@ import androidx.compose.ui.unit.sp
 import com.blyss.musicapp.data.TabType
 import com.blyss.musicapp.data.Theme
 
-class StandardTabFactory(
-    private val theme: Theme
-) {
+object StandardTabFactory {
     val buttonSize = 36.dp
+
+    lateinit var theme: Theme
 
     @Composable
     fun StandardTab(

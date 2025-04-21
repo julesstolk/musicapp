@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import com.blyss.musicapp.data.Track
 import com.blyss.musicapp.tools.PlaylistManager
 
-class PlaylistDropdownFactory {
+object PlaylistDropdownFactory {
 
     @Composable
     fun PlaylistDropdown(track: Track, expanded: Boolean, onDismissRequest: () -> Unit) {

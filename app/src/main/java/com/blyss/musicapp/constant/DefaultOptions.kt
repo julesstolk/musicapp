@@ -6,7 +6,7 @@ import com.blyss.musicapp.R
 import com.blyss.musicapp.data.Track
 import com.blyss.musicapp.tools.PlayManager
 
-class DefaultOptions() {
+object DefaultOptions {
 
     val clearQueue = Option("clear queue", OptionType.BUTTON, icon=R.drawable.baseline_playlist_remove_24, onChange = { PlayManager.clearQueue() })
 
@@ -19,7 +19,7 @@ class DefaultOptions() {
     }
 
     fun addTrackToQueue(track: Track): Option {
-        return Option("add track to queue", OptionType.BUTTON, icon=R.drawable.baseline_playlist_add_24, onChange = { PlayManager.addQueue(track) }, )
+        return Option("add track to queue", OptionType.BUTTON, icon=R.drawable.baseline_playlist_add_24, onChange = { PlayManager.addQueue(track) } )
     }
 
     fun addTrackToPlaylist(expandPlaylistDropdown: () -> Unit): Option {

@@ -1,9 +1,7 @@
 package com.blyss.musicapp.ui
 
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Icon
@@ -24,8 +22,9 @@ import com.blyss.musicapp.R
 import com.blyss.musicapp.data.Theme
 import com.blyss.musicapp.tools.PlaylistManager
 
-class PlaylistDialogFactory(val standardTabFactory: StandardTabFactory,
-                            val theme: Theme) {
+object PlaylistDialogFactory {
+
+    lateinit var theme: Theme
 
     val buttonSize = 36.dp
 
