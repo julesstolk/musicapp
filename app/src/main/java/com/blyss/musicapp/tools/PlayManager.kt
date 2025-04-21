@@ -1,6 +1,8 @@
 package com.blyss.musicapp.tools
 
 import android.content.Context
+import android.content.Intent
+import android.os.Build
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -19,6 +21,8 @@ object PlayManager {
     private lateinit var currentlyPlaying: Track
     private var queue = ArrayList<Track>()
     private var history = ArrayList<Track>()
+
+    private var mediaSessionStarted = false
 
     fun initPlayer(context: Context) {
         exoPlayer = ExoPlayer.Builder(context).build()
@@ -129,6 +133,10 @@ object PlayManager {
     }
 
     fun startPlay(track: Track, context: Context) {
+        if (!mediaSessionStarted) {
+            startMediaSession(context)
+            mediaSessionStarted = true
+        }
         directPlay(track, 0, context)
     }
 
@@ -155,6 +163,16 @@ object PlayManager {
             exoPlayer.seekTo(offset)
             exoPlayer.play()
             mediaPlaying = true
+        }
+    }
+
+    // for the notification to work
+    fun startMediaSession(context: Context) {
+        val intent = Intent(context, NotificationManager::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else {
+            context.startService(intent)
         }
     }
 
