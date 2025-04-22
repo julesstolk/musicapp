@@ -3,6 +3,7 @@ package com.blyss.musicapp.tools
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -33,6 +34,13 @@ object PlayManager {
                 }
             }
         })
+    }
+
+    fun getPlayer(context: Context): ExoPlayer {
+        if (!::exoPlayer.isInitialized) {
+            initPlayer(context)
+        }
+        return exoPlayer
     }
 
     fun release() {
@@ -168,7 +176,7 @@ object PlayManager {
 
     // for the notification to work
     fun startMediaSession(context: Context) {
-        val intent = Intent(context, NotificationManager::class.java)
+        val intent = Intent(context, PlaybackService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(intent)
         } else {

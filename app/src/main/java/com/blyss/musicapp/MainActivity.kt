@@ -2,6 +2,7 @@ package com.blyss.musicapp
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -43,6 +44,7 @@ import com.blyss.musicapp.constant.DefaultThemes
 import com.blyss.musicapp.data.TabType
 import com.blyss.musicapp.data.Theme
 import com.blyss.musicapp.tools.PlayManager
+import com.blyss.musicapp.tools.PlaybackService
 import com.blyss.musicapp.tools.RecentManager
 import com.blyss.musicapp.tools.SearchManager
 import com.blyss.musicapp.tools.Utils
@@ -62,6 +64,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         PlayManager.initPlayer(applicationContext)
+
+        val intent = Intent(applicationContext, PlaybackService::class.java)
+        ContextCompat.startForegroundService(applicationContext, intent)
 
         setContent {
             MusicappMain {
